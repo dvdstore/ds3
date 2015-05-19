@@ -1,0 +1,60 @@
+
+SQL*Loader: Release 12.1.0.1.0 - Production on Wed Apr 8 11:16:29 2015
+
+Copyright (c) 1982, 2013, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   membership.ctl
+Data File:      ../../../data_files/membership/membership.csv
+  Bad File:     membership.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Continuation:    none specified
+Path used:      Direct
+
+Load is UNRECOVERABLE; invalidation redo is produced.
+
+Table DS3.MEMBERSHIP, loaded from every logical record.
+Insert option in effect for this table: APPEND
+TRAILING NULLCOLS option in effect
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+CUSTOMERID                          FIRST     *   ,  O(") CHARACTER            
+MEMBERSHIPTYPE                       NEXT     *   ,  O(") CHARACTER            
+EXPIREDATE                           NEXT     *   ,  O(") DATE yyyy/mm/dd      
+
+
+Table DS3.MEMBERSHIP:
+  2000000 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+  Date cache:
+   Max Size:      1000
+   Entries :        60
+   Hits    :   1999940
+   Misses  :         0
+
+Bind array size not used in direct path.
+Column array  rows :    5000
+Stream buffer bytes:  256000
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:       2000000
+Total logical records rejected:         0
+Total logical records discarded:        0
+Total stream buffers loaded by SQL*Loader main thread:      411
+Total stream buffers loaded by SQL*Loader load thread:        0
+
+Run began on Wed Apr 08 11:16:29 2015
+Run ended on Wed Apr 08 11:16:31 2015
+
+Elapsed time was:     00:00:01.35
+CPU time was:         00:00:00.79

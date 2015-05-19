@@ -1,0 +1,36 @@
+OPTIONS(DIRECT=TRUE, PARALLEL=FALSE)
+
+UNRECOVERABLE
+
+LOAD DATA
+
+APPEND
+
+INTO TABLE ds3.customers
+
+PARTITION (US_PART)
+
+FIELDS TERMINATED BY "," OPTIONALLY ENCLOSED BY '"'
+
+TRAILING NULLCOLS
+
+(CUSTOMERID integer external,
+FIRSTNAME char,
+LASTNAME char,
+ADDRESS1 char,
+ADDRESS2 char,
+CITY char,
+STATE char,
+ZIP integer external,
+COUNTRY char,
+REGION integer external,
+EMAIL char,
+PHONE char,
+CREDITCARDTYPE integer external,
+CREDITCARD char,
+CREDITCARDEXPIRATION char,
+USERNAME char,
+PASSWORD char,
+AGE integer external,
+INCOME integer external,
+GENDER char)

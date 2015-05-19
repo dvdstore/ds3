@@ -1,0 +1,208 @@
+ds3oracledriver documentation 
+5/15/15 - Version DS3
+
+Running command with no parameters will output the onscreen help:
+
+C:\ds3\oracleds3>ds3oracledriver.exe
+
+Enter parameters with format --parm_name=parm_value
+And/or use a config file with argument --config_file=(config file path)
+Parms will be evaluated left to right
+
+Parameter Name      Description                                         Default
+Value
+
+config_file         config file path                                    none
+target              database/web server hostname or IP address          localhos
+t
+n_threads           number of driver threads                            1
+ramp_rate           startup rate (users/sec)                            10
+run_time            run time (min) - 0 is infinite                      0
+db_size             S | M | L or database size (e.g. 30MB, 80GB)        10MB
+warmup_time         warmup_time (min)                                   1
+think_time          think time (sec)                                    0
+pct_newcustomers    percent of customers that are new customers         20
+pct_newmember       percent of orders that will have a customer upgrade their me
+mbership1
+n_searches          average number of searches per order                3
+search_batch_size   average number of items returned in each search     5
+n_reviews           average number of product review searches per order 3
+pct_newreviews      percent of orders where customer will create a new review5
+pct_newhelpfulness  percent of orders where customer will rate an existing revie
+w for its helpfulness10
+n_line_items        average number of items per order                   5
+virt_dir            virtual directory (for web driver)                  ds2
+page_type           web page type (for web driver)                      php
+windows_perf_host   target hostname for Perfmon CPU% display (Windows only)
+linux_perf_host     username:password:target hostname/IP Address for Linux CPU%
+display (Linux Only)
+detailed_view       Detailed statistics View (Y / N)                    N
+
+Typcial Run:
+
+C:\ds3\oracleds3>ds3oracledriver.exe --config_file=testparamALL.txt
+Total number of Threads to be Spawned across multiple servers are n_threads: 18
+target= dvdora1  n_threads= 18  ramp_rate= 10  run_time= 3  db_size= 25GB  warmu
+p_time= 1  think_time= 0 pct_newcustomers= 0 pct_newmembers= 0  n_searches= 3  s
+earch_batch_size= 5  n_reviews=20 pct_newreviews=0 pct_newhelpfulness=0 n_line_i
+tems5 virt_dir= ds2  page_type= php  windows_perf_host=  detailed_view= N linux_
+perf_host=
+
+Using WIN32 QueryPerformanceCounters for measuring response time
+
+Performance Counter Category Test and Counter MaxRT exist
+Thread 5: created for User 5
+Thread 2: created for User 2
+Thread 6: created for User 6
+Thread 3: created for User 3
+Thread 8: created for User 8
+Thread 7: created for User 7
+Thread 1: created for User 1
+Thread 9: created for User 9
+Thread 11: created for User 11
+Thread 0: created for User 0
+Thread 10: created for User 10
+Thread 4: created for User 4
+Thread 12: created for User 12
+Thread 15: created for User 15
+Thread 13: created for User 13
+Thread 14: created for User 14
+Thread 16: created for User 16
+Thread 17: created for User 17
+Controller (5/8/2015 4:09:03 AM): all threads running
+Controller: n_threads_connected = 0 : ConnectionTimeOut remaining 60
+Thread 3: connected to dvdora1
+Thread 1: connected to dvdora1
+Controller: n_threads_connected = 2 : ConnectionTimeOut remaining 59
+Thread 15: connected to dvdora1
+Thread 8: connected to dvdora1
+Controller: n_threads_connected = 4 : ConnectionTimeOut remaining 58
+Thread 13: connected to dvdora1
+Controller: n_threads_connected = 5 : ConnectionTimeOut remaining 57
+Thread 6: connected to dvdora1
+Thread 11: connected to dvdora1
+Controller: n_threads_connected = 7 : ConnectionTimeOut remaining 56
+Thread 4: connected to dvdora1
+Controller: n_threads_connected = 8 : ConnectionTimeOut remaining 55
+Thread 9: connected to dvdora1
+Thread 16: connected to dvdora1
+Thread 2: connected to dvdora1
+Controller: n_threads_connected = 11 : ConnectionTimeOut remaining 54
+Thread 0: connected to dvdora1
+Thread 7: connected to dvdora1
+Thread 14: connected to dvdora1
+Controller: n_threads_connected = 14 : ConnectionTimeOut remaining 53
+Controller: n_threads_connected = 14 : ConnectionTimeOut remaining 52
+Thread 5: connected to dvdora1
+Thread 12: connected to dvdora1
+Thread 10: connected to dvdora1
+Controller: n_threads_connected = 17 : ConnectionTimeOut remaining 51
+Thread 17: connected to dvdora1
+Controller (5/8/2015 4:09:13 AM): all threads connected - issuing Start
+et=   10.2 n_overall=4169 opm=24634 rt_tot_lastn_max_msec=130 rt_tot_avg_msec=57
+ rt_tot_sampled=57 rollbacks: n=83 %=  2.0
+et=   20.3 n_overall=8817 opm=26046 rt_tot_lastn_max_msec=119 rt_tot_avg_msec=55
+ rt_tot_sampled=54 rollbacks: n=161 %=  1.8
+et=   30.5 n_overall=13484 opm=26555 rt_tot_lastn_max_msec=114 rt_tot_avg_msec=5
+5 rt_tot_sampled=54 rollbacks: n=249 %=  1.8
+et=   40.6 n_overall=18150 opm=26807 rt_tot_lastn_max_msec=111 rt_tot_avg_msec=5
+5 rt_tot_sampled=54 rollbacks: n=364 %=  2.0
+et=   50.8 n_overall=22865 opm=27017 rt_tot_lastn_max_msec=108 rt_tot_avg_msec=5
+4 rt_tot_sampled=53 rollbacks: n=444 %=  1.9
+et=   60.9 n_overall=27507 opm=27084 rt_tot_lastn_max_msec=144 rt_tot_avg_msec=5
+4 rt_tot_sampled=54 rollbacks: n=544 %=  2.0
+Stats reset
+et=   10.2 n_overall=4672 opm=27598 rt_tot_lastn_max_msec=136 rt_tot_avg_msec=54
+ rt_tot_sampled=54 rollbacks: n=78 %=  1.7
+et=   20.3 n_overall=9376 opm=27696 rt_tot_lastn_max_msec=152 rt_tot_avg_msec=54
+ rt_tot_sampled=54 rollbacks: n=168 %=  1.8
+et=   30.5 n_overall=14052 opm=27672 rt_tot_lastn_max_msec=106 rt_tot_avg_msec=5
+4 rt_tot_sampled=54 rollbacks: n=242 %=  1.7
+et=   40.6 n_overall=18794 opm=27758 rt_tot_lastn_max_msec=133 rt_tot_avg_msec=5
+4 rt_tot_sampled=53 rollbacks: n=332 %=  1.8
+et=   50.8 n_overall=23510 opm=27774 rt_tot_lastn_max_msec=120 rt_tot_avg_msec=5
+4 rt_tot_sampled=53 rollbacks: n=422 %=  1.8
+et=   60.9 n_overall=28235 opm=27801 rt_tot_lastn_max_msec=143 rt_tot_avg_msec=5
+4 rt_tot_sampled=53 rollbacks: n=517 %=  1.8
+et=   71.1 n_overall=32906 opm=27771 rt_tot_lastn_max_msec=136 rt_tot_avg_msec=5
+4 rt_tot_sampled=54 rollbacks: n=609 %=  1.9
+et=   81.2 n_overall=37606 opm=27770 rt_tot_lastn_max_msec=108 rt_tot_avg_msec=5
+4 rt_tot_sampled=54 rollbacks: n=712 %=  1.9
+et=   91.4 n_overall=42354 opm=27801 rt_tot_lastn_max_msec=91 rt_tot_avg_msec=54
+ rt_tot_sampled=53 rollbacks: n=794 %=  1.9
+et=  101.6 n_overall=47045 opm=27793 rt_tot_lastn_max_msec=123 rt_tot_avg_msec=5
+4 rt_tot_sampled=54 rollbacks: n=890 %=  1.9
+et=  111.7 n_overall=51793 opm=27816 rt_tot_lastn_max_msec=118 rt_tot_avg_msec=5
+4 rt_tot_sampled=53 rollbacks: n=978 %=  1.9
+et=  121.9 n_overall=56515 opm=27822 rt_tot_lastn_max_msec=103 rt_tot_avg_msec=5
+4 rt_tot_sampled=53 rollbacks: n=1085 %=  1.9
+et=  132.0 n_overall=61123 opm=27776 rt_tot_lastn_max_msec=109 rt_tot_avg_msec=5
+4 rt_tot_sampled=55 rollbacks: n=1169 %=  1.9
+et=  142.2 n_overall=65784 opm=27759 rt_tot_lastn_max_msec=124 rt_tot_avg_msec=5
+4 rt_tot_sampled=54 rollbacks: n=1274 %=  1.9
+et=  152.3 n_overall=70495 opm=27763 rt_tot_lastn_max_msec=138 rt_tot_avg_msec=5
+4 rt_tot_sampled=53 rollbacks: n=1376 %=  2.0
+et=  162.5 n_overall=74683 opm=27575 rt_tot_lastn_max_msec=123 rt_tot_avg_msec=5
+4 rt_tot_sampled=59 rollbacks: n=1475 %=  2.0
+et=  172.7 n_overall=79347 opm=27572 rt_tot_lastn_max_msec=123 rt_tot_avg_msec=5
+4 rt_tot_sampled=54 rollbacks: n=1567 %=  2.0
+et=  182.8 n_overall=84066 opm=27590 rt_tot_lastn_max_msec=120 rt_tot_avg_msec=5
+4 rt_tot_sampled=53 rollbacks: n=1654 %=  2.0
+
+Final (5/8/2015 4:13:17 AM): et=  182.8 n_overall=84066 opm=27589 rt_tot_lastn_m
+ax=120 rt_tot_avg=54 n_login_overall=84066 n_newcust_overall=0 n_newmember_overa
+ll=0 n_browse_overall=252690 n_reviewbrowse=2565201 n_newreviews=0 n_newhelpfuln
+ess=0 n_purchase_overall=84066 rt_login_avg_msec=1 rt_newcust_avg_msec=-21474836
+48 rt_rewmember_avg_msec=-2147483648 rt_browse_avg_msec=2 rt_reviewbrowse_avg_ms
+ec=1 rt_newreview_avg_msec=-2147483648 rt_newhelpfulness=-2147483648 rt_purchase
+_avg_msec=3 rt_tot_sampled=53 n_rollbacks_overall=1654 rollback_rate =   2.0%
+
+Thread 0: exiting
+Thread 1: exiting
+Thread 5: exiting
+Thread 15: exiting
+Thread 13: exiting
+Thread 17: exiting
+Thread 9: exiting
+Thread 11: exiting
+Thread 7: exiting
+Thread 6: exiting
+Thread 3: exiting
+Thread 14: exiting
+Thread 4: exiting
+Thread 8: exiting
+Thread 2: exiting
+Thread 10: exiting
+Thread 12: exiting
+Thread 16: exiting
+Controller (5/8/2015 4:13:17 AM): all threads stopped, exiting
+n_purchase_from_start= 111591 n_rollbacks_from_start= 2198
+Run over
+
+What the output means:
+
+et=  			total elapsed time
+n_overall= 		overall number of completed orders 
+opm=			orders per minuute 
+rt_tot_lastn_max=	response time max for the last n number of orders (n=100 by default)
+rt_tot_avg=		response time average 
+n_login_overall=	number of logins for entire run
+n_newcust_overall=	number of newcustomers for entire run
+n_newmember_overall=	number of new premium memberships for run
+n_browse_overall=	number of product browse for entire run
+n_reviewbrowse=		number of product review searches for entire run
+n_newreviews=		number of new reviews added during run
+n_newhelpfulness=	number of new review helpfulness ratings during run
+n_purchase_overall=	number of purcheses during run 
+rt_login_avg_msec=	average response time for login phase 
+rt_newcust_avg_msec=	average response time for new customer phase
+rt_rewmember_avg_msec=	average response time for new memmer phase
+rt_browse_avg_msec=	average response time for browse phase
+rt_reviewbrowse_avg_msec= average response time for reviews browse phase 
+rt_newreview_avg_msec=	average response time for new reviews
+rt_newhelpfulness=	average response time for new helpfulness ratings 
+rt_purchase_avg_msec=	average response time purchases 
+rt_tot_sampled=		number of stats sample periods in test run 
+n_rollbacks_overall=	number of times a purchase was rolledback instead of committed
+rollback_rate =   	percentage of times a rollback occured during a purchase
+

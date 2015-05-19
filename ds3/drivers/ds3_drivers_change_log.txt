@@ -1,0 +1,33 @@
+
+ds3_drivers_change_log.txt
+
+9/13/05:  ds2xdriver.cs: Fixed minor bug for think time
+9/14/05:  ds2xdriver.cs: Added check on n_searches, etc., not equal to 0
+10/5/05:  ds2xdriver.cs: Added target_hostname parameter for tracking CPU Util % during run (Windows only)
+                         Write output to standard error until final results (for ease of handling output in scripts)
+10/21/05: Removed errant debugging statement in ds2xdriver.cs, recompiled 6 driver programs
+          Replaced ds2webdriver.exe due to bug fix in ds2xdriver.cs
+          Replaced ds2webdriver_mono.exe due to bug fix in ds2xdriver.cs
+11/14/05: ds2xdriver.cs: Changed default think_time to 0 sec for consistency, recompiled 6 driver programs
+          ds2webnfns.cs: Added code to handle quotes in HTML output (per Gerhard Kalab's suggestion)
+6/30/06:  ds2xdriver.cs: updated Performance Counter code for .NET 2.0/Visual Studio 2005
+          Replaced ds2webdriver.exe due to changes in ds2xdriver.cs
+          Replaced ds2webdriver_mono.exe due to changes in ds2xdriver.cs
+11/30/07: ds2xdriver.cs: Changed "target_hostname" to "windows_perf_host" for clarity; 
+                         modified description in code and in ds2driver_doc.txt
+6/14/2010 by GSK: Modifications for Custom Database size and a new parameter detailed_view. Also db_size_str parameter is renamed to db_size. 
+			(This new parameter can have values S | M | L or any custom database size like 50mb, 5gb, 20gb, 150gb, etc
+			
+			Modified: ds2xdriver.cs and ds2webfns.cs (modified for working with custom database size and drive workload on multiple machines.)
+				    ds2xdriver.cs (Modified to output new parameter rt_tot_sampled. This parameter samples avg response time between 10 second intervals)
+
+			All driver programs are recompiled to update changes in *.exe's
+			(To know more about driver program modifications and how to use driver program , please go through documentation ds2.1_Documentation.txt under ./ds2/ folder)
+10/12/2010 ds2webfns.cs: Added better exception handling for httpwebresponse 
+10/12/2010 ds2xdriver.cs: Added connection timeout of 1 minute for all threads to get connected
+11/1/2010  ds2xdriver.cs:  Added syntax for compiling Postgresql version of driver
+
+05/15/15 ds3xdriver.cs:  Major changes! Added new steps to order process to
+handle new membership, new reviews, new review helpfulness ratings, browsing
+reviews.  Timing counters added to measure new steps in order process. New
+command line parameters added to support options for new steps.			

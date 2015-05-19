@@ -1,0 +1,38 @@
+1. Can you please elaborate a little on the parameters to the utility. (I am
+specifically interested in S/M/L db size and think time)
+
+S/M/L refer to the size of the database (10 MB/ 1 GB/ 100 GB). Things like
+maximum number of products and customers are tied to the size. Think time is
+the time between requests, while the simulated user is reading the previous
+response and "thinking". You can set it to a value you think is
+realistic (10 seconds?, 2 seconds?) and use this to estimate the number of
+total supported users. Or you can set it to 0 and have the program drive the
+backend as hard as possible for a measurement of total throughput (orders per
+minute). Or you can adjust it if you are trying to drive an arbitrary number
+of orders per minute.
+
+
+2. Is the number of threads is equivalent to number of users ? 
+
+Number of threads is the number of connections to back end (web server or
+database). If you set think time to a realistic value (as discussed in
+question 1) then threads will be equal to users.
+
+
+3. What is the difference between starting the prog with 10 threads from
+a single machine compared to 5 threads from two different machine.
+
+Unless you are hitting a resource bottleneck (either the client CPU or
+networking) you shouldn't see much difference.
+
+
+4. How do I interpret the data obtained from the ds3webdriver utility. (I
+mean For example : et=  100.0 n_overall=280 opm=168 rt_tot_lastn_max=298
+rt_tot_avg=115 rollbacks: n=121 %= 43.2)
+
+See ./ds3/drivers/ds3_driver.txt
+
+5. Is it fair to compare the DS3 database size (10 MB /1 GB/100 GB) with
+no of warehouses in TPCC ? 
+
+No

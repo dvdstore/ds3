@@ -1,0 +1,157 @@
+        
+ds3_schema.txt
+
+DVD Store Release 3 Database Schema
+-----------------------------------
+
+Table           Columns                 Number of Rows (Large database) 
+-----           -------                 -------------------------------
+
+Customers       CUSTOMERID              200 million
+                FIRSTNAME
+                LASTNAME
+                ADDRESS1
+                ADDRESS2
+                CITY
+                STATE
+                ZIP
+                COUNTRY
+                REGION
+                EMAIL
+                PHONE
+                CREDITCARDTYPE
+                CREDITCARD
+                CREDITCARDEXPIRATION
+                USERNAME
+                PASSWORD
+                AGE
+                INCOME
+                GENDER
+
+Orders          ORDERID                 120 million
+                ORDERDATE
+                CUSTOMERID
+                NETAMOUNT
+                TAX
+                TOTALAMOUNT
+
+Orderlines      ORDERLINEID             600 million
+                ORDERID
+                PROD_ID
+                QUANTITY
+                ORDERDATE
+
+Cust_Hist       CUSTOMERID              600 million
+                ORDERID
+                PROD_ID
+
+Products        PROD_ID                 1 million
+                CATEGORY
+                TITLE
+                ACTOR
+                PRICE
+                SPECIAL
+                COMMON_PROD_ID
+                MEMBERSHIP_ITEM
+
+Inventory       PROD_ID                 1 million
+                QUAN_IN_STOCK
+                SALES
+
+Reorder         PROD_ID                 variable
+                DATE_LOW
+                QUAN_LOW
+                DATE_REORDERED
+                QUAN_REORDERED
+                DATE_EXPECTED
+
+Categories      CATEGORY                16
+                CATEGORYNAME
+
+Membership	CUSTOMERID
+		MEMBERSHIPTYPE
+		EXPIREDATE
+
+Reviews		REVIEW_ID
+		PROD_ID
+		REVIEW_DATE
+		STARS
+		CUSTOMERID
+		REVIEW_SUMMARY
+		REVIEW_TEXT
+
+Reviews_Helpfulness
+		REVIEW_HELPFULNESS_ID
+		REVIEW_ID
+		CUSTOMER_ID
+		HELPFULNESS
+        
+
+Stored Procedures   
+-----------------
+
+The DVD Store database is managed through 17 stored procedures. The first two are used during the login phase. 
+If the customer is a returning customer, Login is used to retrieve the customer's information, in particular 
+the CUSTOMERID. If the customer is a new customer, New_customer is used to create a new row in the Customers 
+table with the user's data. If a customer wants to become a preimum member, the new_member procedure will add an
+existing customer as a premium member. Following the login phase the customer might search for a DVD by category, 
+actor or title. These are implemented by Browse_by_category, Browse_by_actor and Browse_by_title, respectively. 
+The product reviews are returned by a set of stored procedures that provide different types of result sets.  
+The get_prod_reviews procedure returns the most helpful reveiws for a specific product.  The 
+get_prod_reviews_by_stars returns the most helpful reviews for a specific review star rating. The
+get_prod_reviews_by_date returns the most recent reveiws for a specific product. The get_prod_reviews_by_actor 
+and by_title return reviews based on a search by actor or title.  Finally, after the user has made his or her 
+selections, the Purchase stored procedure is called to complete the transaction.
+   
+The stored procedures of the DS3 application have features to better model today's online stores. 
+During Login, for example, the user's previous order (up to ten titles) is reported, along with titles 
+that other customers who like those titles have recommended. The Browse_by_category returns those titles 
+in the specified category that are currently on sale. And the Purchase stored procedure now checks the QUAN_IN_STOCK 
+field from the Inventory table to see if a title is available. This is done using a database transaction, 
+so that if there is insufficient quantity to fill the order neither the QUAN_IN_STOCK data is updated 
+nor is a new record written to the ORDERS table. 
+        
+
+Driver Program
+--------------    
+
+A multi-threaded driver program, included with DS3, is used to simulate an order entry or online 
+transaction processing (OLTP) workload. Each thread of the OLTP driver application connects to the database 
+(either directly or through a web layer) and makes a series of stored procedure calls that simulates users 
+logging in, browsing products and reviews, and purchasing.  Each completed sequence by a customer is counted 
+as a single order. The driver measures order rates and the average response time to complete each order. 
+Several tunable parameters are used to control the application and are described below.
+
+Parameter               Description                                             Default
+---------               -----------                                             -------
+n_threads           	number of driver threads                            	1
+ramp_rate           	startup rate (users/sec)                            	10
+run_time            	run time (min) - 0 is infinite                      	0
+db_size             	S | M | L or database size (e.g. 30MB, 80GB)        	10MB
+warmup_time         	warmup_time (min)                                   	1
+think_time          	think time (sec)                                    	0
+pct_newcustomers    	percent of customers that are new customers         	20
+pct_newmember       	percent of orders with a customer premium membership	1
+n_searches          	average number of searches per order                	3
+search_batch_size   	average number of items returned in each search     	5
+n_reviews           	average number of product review searches per order 	3
+pct_newreviews      	percent of orders with a new review			5
+pct_newhelpfulness  	percent of orders with a new review helpful rating	10
+n_line_items        	average number of items per order                   	5
+virt_dir            	virtual directory (for web driver)                  	ds3
+page_type           	web page type (for web driver)                      	php
+windows_perf_host   	target hostname for Perfmon CPU% display (Windows only)
+linux_perf_host     	username:password:target hostname/IP Address for Linux CPU% display (Linux Only)
+detailed_view       	Detailed statistics View (Y / N)                    N
+
+
+So with the default settings, the average order consists of 1 login/new customer create step, 3 searches, 
+20 review searches, 3 percent new reviews, 5 percent review helpfulnss rating, 1 percent new membership, 
+and 1 purchase.  The delay_time may be set to a typical user read/think/type time for an order so that the 
+number of threads then corresponds to the number of simultaneous users. Or an extremely small delay
+is used so that the database connections are kept full, simulating what happens in a real multi-tiered 
+application where some small number of connections are pooled and shared among the web servers 
+that may be handling thousands of simultaneous customers. Thus a realistic simulation of database activity is 
+achieved without needing to model thousands of users.        
+
+<davejaffe7@gmail.com> and <tmuirhead@vmware.com>  5/14/15

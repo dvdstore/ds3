@@ -1,0 +1,63 @@
+
+SQL*Loader: Release 12.1.0.1.0 - Production on Wed Apr 8 11:14:40 2015
+
+Copyright (c) 1982, 2013, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   apr_orders.ctl
+Data File:      ../../../data_files/orders/apr_orders.csv
+  Bad File:     apr_orders.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Continuation:    none specified
+Path used:      Direct
+
+Load is UNRECOVERABLE; invalidation redo is produced.
+
+Table DS3.ORDERS, partition APR2013, loaded from every logical record.
+Insert option in effect for this partition: APPEND
+TRAILING NULLCOLS option in effect
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+ORDERID                             FIRST     *   ,  O(") CHARACTER            
+ORDERDATE                            NEXT     *   ,  O(") DATE yyyy/mm/dd      
+CUSTOMERID                           NEXT     *   ,  O(") CHARACTER            
+NETAMOUNT                            NEXT     *   ,  O(") CHARACTER            
+TAX                                  NEXT     *   ,  O(") CHARACTER            
+TOTALAMOUNT                          NEXT     *   ,  O(") CHARACTER            
+
+
+Table DS3.ORDERS, partition APR2013:
+  1000000 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+  Date cache:
+   Max Size:      1000
+   Entries :        30
+   Hits    :    999970
+   Misses  :         0
+
+Bind array size not used in direct path.
+Column array  rows :    5000
+Stream buffer bytes:  256000
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:       1000000
+Total logical records rejected:         0
+Total logical records discarded:        0
+Total stream buffers loaded by SQL*Loader main thread:      223
+Total stream buffers loaded by SQL*Loader load thread:        0
+
+Run began on Wed Apr 08 11:14:40 2015
+Run ended on Wed Apr 08 11:14:45 2015
+
+Elapsed time was:     00:00:04.70
+CPU time was:         00:00:00.94

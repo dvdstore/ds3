@@ -15,6 +15,9 @@ This is a database test workload. The database is created
 using the included tools and then stressed with the included
 driver program that simultes user activity.
 
+Full details are included in the various readme files in the
+DS3 subdirectories.
+
 DVD Store 3 will support Oracle, MySQL, SQL Server, and
 PostGres databases when complete.  
 

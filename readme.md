@@ -11,6 +11,10 @@ DVD Store 3 is based on the previous DVD Store 2.  The new
 features in DVD Store 3 revolve around the addition of 
 customer reviews and premium membership. 
 
+This is a database test workload. The database is created
+using the included tools and then stressed with the included
+driver program that simultes user activity.
+
 DVD Store 3 will support Oracle, MySQL, SQL Server, and
 PostGres databases when complete.  
 

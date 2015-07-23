@@ -1,6 +1,0 @@
-
-05/14/15	Initial version of DVD Store 3 completed with initial support for just Oracle database. DVD Store 3 is based on 
-		DVD Store 2 - please see previous change log for DVD Store 2 for history prior to DS3 release.
-07/18/15	Webdriver for DVD Store 3 added. Update to oracle driver to
-		fix small bug. InstallDVDStore.pl updated to include support
-		MySQL version.  MySQL support added at this time.

@@ -1451,7 +1451,7 @@ namespace ds2xdriver
     //-------------------------------------------------------------------------------------------------
     // 
 
-    public bool ds2getreview(string get_review_type_in, int get_review_prod_in, int get_review_stars_in, int batch_size_in, ref int rows_returned,
+    public bool ds2getreview(string get_review_type_in, int get_review_prod_in, int get_review_stars_in, int customerid_out, int batch_size_in, ref int rows_returned,
       ref int[] prod_id_out, ref int[] review_id_out, ref string[] review_date_out, ref int[] review_stars_out, ref int[] review_customerid_out,
       ref string[] review_summary_out, ref string[] review_text_out, ref int[] review_helpfulness_sum_out, ref double rt)
     {

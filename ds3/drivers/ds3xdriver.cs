@@ -1,5 +1,4 @@
-
-/*
+﻿/*
  * Generalized DVD Store 3 Driver Program - ds3xdriver.cs
  *
  * Copyright (C) 2005 Dell, Inc. <davejaffe7@gmail.com> and <tmuirhead@vmware.com>
@@ -132,7 +131,7 @@ namespace ds2xdriver
     //public static int[] prod_array = new int[1100000];
     //Changed by GSK (size of this array will depend on number of rows in product table)
     public static int[] prod_array;
-    public static string virt_dir = "ds2" , page_type = "php";
+    public static string virt_dir = "ds3" , page_type = "php";
 
     //Added new parameter database_custom_size and new variables by GSK 
     //Note that order_rows are per month
@@ -178,7 +177,7 @@ namespace ds2xdriver
       "username:password:target hostname/IP Address for Linux CPU% display (Linux Only)",
       "Detailed statistics View (Y / N)"};
     static string[] input_parm_values = new string[] {"none", "localhost", "1", "10", "0", "10MB", "1", "0",
-      "20", "1", "3", "5", "3", "5", "10", "5", "ds2", "php", "","","N"};
+      "20", "1", "3", "5", "3", "5", "10", "5", "ds3", "php", "","","N"};
 
     int server_id = 0;          //Added by GSK
     
@@ -895,7 +894,7 @@ namespace ds2xdriver
 
       max_customer = customer_rows;
       max_product = product_rows;
-      max_review = product_rows * 30;
+      max_review = product_rows * 20;
 
       //Changed by GSK (size of array prod_array = number of rows in product table + (10000 * 10)
       //Reason : Every 10000th product wil be popular and will have 10 entries in list
@@ -1910,7 +1909,8 @@ namespace ds2xdriver
               }
 
             if ( customerid_out == 0 ) Console.WriteLine ( "User name {0} already exists" , username_in );
-            } while ( customerid_out == 0 ); // end of do/while try newcustomer
+            if (customerid_out == -1) Console.WriteLine("New Customer - DB didn't return value for new customerid, retrying... ");
+            } while ( customerid_out < 1 ); // end of do/while try newcustomer
 
 //        Console.WriteLine("Thread {0}: New user {1} logged in, customerid = {2}, RT= {3,10:F3}", 
 //           Thread.CurrentThread.Name, username_in, customerid_out, rt);  
@@ -2032,7 +2032,7 @@ namespace ds2xdriver
         // int batch_size_in;
 
         int n_reviewbrowse = 1 + r.Next(2 * Controller.n_reviews - 1);   // Perform average of n_reviews searches
-        for (int ib = 0; ib < n_browse; ib++)
+        for (int ib = 0; ib < n_reviewbrowse; ib++)
         {
             batch_size_in = 1 + r.Next(2 * Controller.search_batch_size - 1); // request avg of search_batch_size lines
             int search_type = r.Next(2); // randomly select search type
@@ -2086,7 +2086,7 @@ namespace ds2xdriver
         //string get_review_criteria = "";
         // int batch_size_in;
 
-        int n_getreviewbrowse = 1 + r.Next(2 * Controller.n_searches - 1);   // Perform average of n_searches searches
+        int n_getreviewbrowse = 1 + r.Next(2 * Controller.n_reviews - 1);   // Perform average of n_searches searches
         for (int ib = 0; ib < n_getreviewbrowse; ib++)
         {
             batch_size_in = 1 + r.Next(2 * Controller.search_batch_size - 1); // request avg of search_batch_size lines
@@ -2108,7 +2108,7 @@ namespace ds2xdriver
                     break;
             }
 
-            if (!ds2interfaces[Userid].ds2getreview(get_review_type_in, get_review_prod_in, get_review_stars_in, batch_size_in, ref rows_returned, ref prod_id_out,
+            if (!ds2interfaces[Userid].ds2getreview(get_review_type_in, get_review_prod_in, get_review_stars_in, customerid_out, batch_size_in, ref rows_returned, ref prod_id_out,
                ref review_id_out, ref review_date_out, ref review_stars_out, ref review_customerid_out,
               ref review_summary_out, ref review_text_out, ref review_helpfulness_sum_out, ref rt))
             {

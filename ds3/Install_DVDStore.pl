@@ -359,7 +359,7 @@ my $par_Max_Cust_Id = 0; 	# Max Customer Id = number of Customer table rows used
 
 my $par_Pct_Member = 10;        # Percentage of users that are in the membership program
 
-my $par_Avg_Reviews = 30;	# Average number of reviews per product
+my $par_Avg_Reviews = 20;	# Average number of reviews per product
 
 if($bln_is_Small_DB == 1)
 {
@@ -629,7 +629,7 @@ $cust_row_plus_one = ($i_Cust_Rows + 1);
 
 if($bln_is_DB_MYSQL == 1)			#For MySQL
 {
-	chdir "../../mysqlds2/";			#Move to mysql directory
+	chdir "../../mysqlds3/";			#Move to mysql directory
 	chdir "./build/";					#Move to build directory inside mysql directory
 	
 	#Open a template file and replace placeholders in it and write new file
@@ -641,7 +641,7 @@ if($bln_is_DB_MYSQL == 1)			#For MySQL
 	@lines = ();
 	$line = "";
 	$str_file_name = "";
-	open (FILE, "mysqlds2_cleanup_generic_template.sql") || die "Can not Open file : $!";	
+	open (FILE, "mysqlds3_cleanup_generic_template.sql") || die "Can not Open file : $!";	
 	@lines =  <FILE>;
 	close (FILE);
 	foreach $line (@lines)
@@ -649,7 +649,7 @@ if($bln_is_DB_MYSQL == 1)			#For MySQL
 		$line =~ s/{CUST_ROW}/$i_Cust_Rows/g;
 		$line =~ s/{ORD_ROW}/$ord_row/g;
 	}	
-	$str_file_name = "mysqlds2_cleanup_".$database_size.$database_size_str.".sql";
+	$str_file_name = "mysqlds3_cleanup_".$database_size.$database_size_str.".sql";
 	open (NEWFILE, ">" , $str_file_name) || die "Creating new file to write failed : $!";
 	print NEWFILE @lines;
 	close (NEWFILE);

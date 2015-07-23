@@ -1,0 +1,61 @@
+#Differences between my.cnf.example (<) and /usr/share/mysql/my-large.cnf (>)
+
+29c29
+< key_buffer = 16M
+---
+> key_buffer = 256M
+31,33c31,33
+< table_cache = 32M
+< sort_buffer_size = 2M
+< read_buffer_size = 2M
+---
+> table_cache = 256
+> sort_buffer_size = 1M
+> read_buffer_size = 1M
+35,37c35,37
+< myisam_sort_buffer_size = 16M
+< thread_cache = 20 
+< query_cache_size= 32M
+---
+> myisam_sort_buffer_size = 64M
+> thread_cache = 8
+> query_cache_size= 16M
+39,43c39
+< thread_concurrency = 20
+< #log=/var/lib/mysql/mysql_query.log
+< # TM - The following reduce min string to 3 and disable stopwords in FULLTEXT
+< ft_min_word_len = 3
+< ft_stopword_file =
+---
+> thread_concurrency = 8
+55c51
+< #log-bin=mysql-bin
+---
+> log-bin=mysql-bin
+126,132c122,125
+< #innodb_data_home_dir = /data/mysql/
+< innodb_data_home_dir = /var/lib/mysql/
+< innodb_data_file_path = ibdata1:1024M:autoextend
+< #innodb_log_group_home_dir = /data/mysql/
+< innodb_log_group_home_dir = /var/lib/mysql/
+< #innodb_log_arch_dir = /data/mysql/
+< innodb_log_arch_dir = /var/lib/mysql/
+---
+> #innodb_data_home_dir = /var/lib/mysql/
+> #innodb_data_file_path = ibdata1:10M:autoextend
+> #innodb_log_group_home_dir = /var/lib/mysql/
+> #innodb_log_arch_dir = /var/lib/mysql/
+135,136c128,129
+< innodb_buffer_pool_size = 128M
+< innodb_additional_mem_pool_size = 10M
+---
+> #innodb_buffer_pool_size = 256M
+> #innodb_additional_mem_pool_size = 20M
+138,139c131,132
+< innodb_log_file_size = 64M
+< innodb_log_buffer_size = 4M
+---
+> #innodb_log_file_size = 64M
+> #innodb_log_buffer_size = 8M
+142d134
+< innodb_flush_method=O_DIRECT

@@ -1,0 +1,51 @@
+
+ds3_mysql_change_log.txt
+
+5/13/05:  Posted ds2_mysql.tar.gz to linux.dell.com
+6/7/05:   Added ASPX pages
+6/7/05:   Minor improvements to PHP pages:
+          -Added mysqli_connect_error() reporting to die statement in php pages when connection to MySQL fails
+          -Changed "user_name" to "username"
+6/30/05:  Added index.html page to ./ds2/mysqlds2/web/php
+          Added aspx application under ./ds2/mysqlds2/web/aspx
+          Broke driver program into database-independent and database-dependent pieces
+           - moved web driver to ./ds2/drivers
+           - added ds2mysqlfns.cs, ds2mysqldriver.exe and ds2mysqldriver_mono.exe  to ./ds2/mysqlds2
+          Added Java Server Page application under ./ds2/mysqlds2/web/jsp
+          Added dsnewcustomer_nosp.php version that doesn't use stored procedures
+7/13/05:  Renamed dsnewcustomer.php pages to make clear which one calls stored procedures and which one doesn't
+9/13/05:  Made type of PRODUCTS table explicit with  TYPE=MyISAM; declaration rather than assume default table type is MyISAM
+9/14/05:  Made minor changes to JSP pages
+9/21/05:  Added set of PHP web pages for PHP4 under ./ds2/mysqlds2/web; renamed PHP directory to PHP5
+          Added mysqlds2_create_all_nosp.sh to create database without stored procedures
+10/5/05:  Fixed bug in ds2mysqlfns.cs - was not closing reader in case of no DVDs found in search
+          Recompiled ds2mysqldriver.exe and ds2mysqldriver_mono.exe with new ds2xdriver.cs
+10/21/05: Replaced ds2mysqldriver.exe due to bug fix in ds2xdriver.cs
+          Replaced ds2mysqldriver_mono.exe due to bug fix in ds2xdriver.cs
+12/16/05: Renamed my.cnf.1GB to my.cnf.example for clarity
+6/30/06:  Replaced ds2mysqldriver.exe due to updated ds2xdriver.cs
+          Replaced ds2mysqldriver_mono.exe due to updated ds2xdriver.cs
+
+DVDStore 2.1
+6/14/2010 by GSK: Changed ds2mysqlfns.cs for single driver program instance driving multiple machines scenario. and added mysqlds2_cleanup_generic_template.sql template file
+			 for build script generation.
+07/23/2010 by GSK: Changed php5 web pages for mysql web driver (Pages were modified by VMMark team at VMware for testing with mysql. Purpose of changes: Close DB connections explicitly in pages and 
+			  use latest mysqli mySQL-PHP drivers)
+ 			 Driver program is recompiled to provide latest *.exe's
+			 (To know more about DVDStore 2.1 modifications and instructions on how to use DVDStore 2.1, go through documentation ds2.1_Documentation.txt under ./ds2/ folder)
+
+5/30/11:  Replaced ds2mysqldriver.exe due to updated ds2xdriver.cs (DJ)
+          Added ds2_lamp_setup_rhel5.txt file for MySQL 5.5 instructions
+
+
+
+DVD Store 3 
+
+6/2/15:  Updated / Enhanced from version 2.1 to 3.0.  Added new tables and 
+indexes to support product reviews, user base product reviews helpfulness, 
+and premium membership.  Driver program was also updated to be able to support 
+the new DS3 order process that adds new members, browsing reviews by title, 
+actor, date, and star rating.  Build scripts are updated to create the new REVEIWS, 
+REVIEWS_HELPFULNESS, and MEMBERSHIP tables and the associated indexes.  New 
+stored proecedures were created for the NEW_REVIEWS, NEW_REVIEWS_HELPFULENSS, 
+and NEW_MEMBER operations.  

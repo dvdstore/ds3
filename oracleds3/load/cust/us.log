@@ -1,0 +1,71 @@
+
+SQL*Loader: Release 12.1.0.1.0 - Production on Wed Apr 8 11:13:58 2015
+
+Copyright (c) 1982, 2013, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   us_cust.ctl
+Data File:      ../../../data_files/cust/us_cust.csv
+  Bad File:     us.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Continuation:    none specified
+Path used:      Direct
+
+Load is UNRECOVERABLE; invalidation redo is produced.
+
+Table DS3.CUSTOMERS, partition US_PART, loaded from every logical record.
+Insert option in effect for this partition: APPEND
+TRAILING NULLCOLS option in effect
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+CUSTOMERID                          FIRST     *   ,  O(") CHARACTER            
+FIRSTNAME                            NEXT     *   ,  O(") CHARACTER            
+LASTNAME                             NEXT     *   ,  O(") CHARACTER            
+ADDRESS1                             NEXT     *   ,  O(") CHARACTER            
+ADDRESS2                             NEXT     *   ,  O(") CHARACTER            
+CITY                                 NEXT     *   ,  O(") CHARACTER            
+STATE                                NEXT     *   ,  O(") CHARACTER            
+ZIP                                  NEXT     *   ,  O(") CHARACTER            
+COUNTRY                              NEXT     *   ,  O(") CHARACTER            
+REGION                               NEXT     *   ,  O(") CHARACTER            
+EMAIL                                NEXT     *   ,  O(") CHARACTER            
+PHONE                                NEXT     *   ,  O(") CHARACTER            
+CREDITCARDTYPE                       NEXT     *   ,  O(") CHARACTER            
+CREDITCARD                           NEXT     *   ,  O(") CHARACTER            
+CREDITCARDEXPIRATION                 NEXT     *   ,  O(") CHARACTER            
+USERNAME                             NEXT     *   ,  O(") CHARACTER            
+PASSWORD                             NEXT     *   ,  O(") CHARACTER            
+AGE                                  NEXT     *   ,  O(") CHARACTER            
+INCOME                               NEXT     *   ,  O(") CHARACTER            
+GENDER                               NEXT     *   ,  O(") CHARACTER            
+
+
+Table DS3.CUSTOMERS, partition US_PART:
+  10000000 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+Bind array size not used in direct path.
+Column array  rows :    5000
+Stream buffer bytes:  256000
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:      10000000
+Total logical records rejected:         0
+Total logical records discarded:        0
+Total stream buffers loaded by SQL*Loader main thread:     3033
+Total stream buffers loaded by SQL*Loader load thread:     4699
+
+Run began on Wed Apr 08 11:13:58 2015
+Run ended on Wed Apr 08 11:14:40 2015
+
+Elapsed time was:     00:00:41.62
+CPU time was:         00:00:18.39

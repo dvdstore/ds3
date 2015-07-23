@@ -1,0 +1,110 @@
+DS3_lamp_setup_centOS.txt
+Author - Todd Muirhead
+Last Modified - 7/21/15
+
+Install CentOS 6.5 64bit	
+	Language - English
+	Keyboard - US English
+	Basic Storage Devices
+	Yes, Discard any Data
+	Hostname - TestCentOS
+	Time Zone - Pacific  - Amercia / Los Angeles
+	Root PW - regular
+	Create Custom Layout - 16GB swap, everything else in / (this is just a test system)
+	CentOS Install Type - Standard Desktop
+	Reboot
+	Accept License Agreement
+	Reboot
+	Enble Network - Set eth0 to connect automatically
+	ifconfig to check network adress - 10.133.255.206
+Install VMtools
+	Copy to desktop
+	Run vmware-install.pl - accept defaults
+	reboot
+Disable Firewall
+	click System -> Administration -> Firewall.  Click Disable button on toolbar, then apply
+
+Install MySQL
+	Download YUM repository RPM from http://dev.mysql.com/downloads/repo/ 
+		For RHEL 6 - RPM Package - mysql-community-release-el6-5.noarch.rpm
+		save to /install/mysql
+
+	Open command prompt and install the rpm (this rpm will add the mysql repository to the system)
+		yum localinstall mysql-community-release-el6-5.noarch.rpm
+
+	Install MySQL Server with yum
+		yum install mysql-server
+	This installs version 5.6.25-2 at the time of this work
+
+Install latest apache2 and php with mysql support
+	yum install httpd httpd-devel
+	yum install php php-mysql
+
+Start MySQL
+	service mysqld start
+
+Add web user and set its password to web
+	useradd web
+	passwd web
+	chmod 755 /home/web
+
+Download DVD Store 3 from github.com/dvdstore
+	ds3u1.tar
+	ds3u1mysql.tar
+
+Untar
+	tar -xvf ds3u1.tar
+	tar -xvf ds2u1mysql.tar
+
+Build 5GB DVD Store 3 from Install DVD Store Perl Script
+	
+	cd /root/ds3
+	perl Install_DVDStore.pl
+	Answer questions - 5, GB, MYSQL, LINUX
+
+mysql
+	>create user 'web'@'localhost' identified by 'web';
+	>grant ALL PRIVILEGES on *.* to 'web'@'localhost' IDENTIFIED BY 'web';
+	>exit;
+
+	cd /root/ds3/mysqlds3
+	sh mysqlds3_create_all.sh
+
+PHP Web Tier Setup
+	Copy the PHP pages to the correct place on the server
+	
+	mkdir /var/www/html/ds3
+	cp /root/home/ds3/mysqlds3/web/php5/* /var/www/html/ds3
+
+	service httpd restart
+
+Client System
+	
+Any web browser should now be able to access the web based php version at http://hostname/ds3/index.html
+	username=user1   password=password
+
+To use the driver program you will need a windows based system with .net framework installed.  
+In the initial version of DVD Store 3 .net framework 4.5 and MySQL .Net Connector version 6.9.6 was used.  If you have a different version of either .net or the MySQL .Net Connector it might be necessary to recompile the driver program before it will run.  
+
+It is a fairly simple (not too difficult) command line based compile.  In the ds3xdrvier.cs file header the compile instructions are included and also covered here as well in a little more detail.
+
+Download the ds3u1.tar and ds3u1mysql.tar files and extract all contents on the windows client.
+
+Download the MySQL .Net Connector from the dev.mysql.com website - http://dev.mysql.com/downloads/connector/net/
+
+Run the .net connector installer - mysql-connector-net-6.9.6.msi -> Next, Typical, Install, Finish. 
+This will install the MySQL.Data.dll that is needed for the driver program to execute. 
+	
+If your version of the .net connector is different than above, you will need to recompile the driver program as below.
+
+Recompile the driver program to use the new MySQL.Data.dll that comes with the current version of the connector:
+
+C:\ds3\drivers>c:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /out:ds3mysqldriverNew.exe ds3xdriver.cs c:\ds3\mysqlds3\ds3mysqlfns.cs /d:USE_WIN32_TIME
+R /d:GEN_PERF_CTRS /r:"c:\Program Files (x86)\MySQL\MySQL Connector Net 6.9.6\Assemblies\v4.0\MySql.Data.dll"
+
+To make the command much shorter, you can add the csc.exe into the PATH environment variable, and have the two source .cs files copied into the same directory.
+
+
+
+	
+	

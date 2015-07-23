@@ -1,0 +1,22 @@
+OPTIONS(DIRECT=TRUE, PARALLEL=FALSE)
+
+UNRECOVERABLE
+
+LOAD DATA
+
+APPEND
+
+INTO TABLE ds3.products
+
+FIELDS TERMINATED BY "," OPTIONALLY ENCLOSED BY '"'
+
+TRAILING NULLCOLS
+
+(PROD_ID integer external,
+CATEGORY integer external,
+TITLE char,
+ACTOR char,
+PRICE decimal external,
+SPECIAL integer external,
+COMMON_PROD_ID integer external,
+MEMBERSHIP_ITEM integer external)

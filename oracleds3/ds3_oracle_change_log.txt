@@ -1,0 +1,85 @@
+
+ds3_oracle_change_log.txt
+
+9/8/05:   Created
+9/13/05:  Added JSP pages under ./ds2/oracleds2/web/jsp
+          Changed Oracle schema to make CUSTOMERS/CREDIT_CARD column allow nulls
+9/14/05:  Made minor changes to JSP pages
+10/5/05:  Added ds2oraclenfns.cs, compiled with new ds2xdriver.cs to gen ds2oracledriver.exe
+          Added index to INVENTORY table; added this index to Analyze script
+10/21/05: Replaced ds2oracledriver.exe due to bug fix in ds2xdriver.cs
+          Updated ProC programs for slight modifications to Oracle stored procedures
+11/14/05: Fixed bug in ds2oraclefns.cs Browse_By_Title code
+6/30/06:  ds2oraclefns.cs: Added Connection Timeout=120 to sConnectionString
+          Replaced ds2oracledriver.exe due to changes in ds2xdriver.cs and ds2oraclefns.cs
+10/24/06: Fixed missing semicolon in oracleds2_create_ind.sql
+          Modified oracleds2_cleanup_large.sh to point to oracleds2_cleanup_large_fk_disabled.sql
+          Changed name of indx_2 file to indx_2.dbf in oracleds2_create_tablespaces_large_asm.sql
+          Changed size of SEQUENCE CACHE in large databases from 100,000 to 1M
+          Added oracleds2_create_all_large.sh
+10/5/07:  Added odp10202install.txt - documents changes needed for ds2oracledriver.exe on Windows x64 client
+12/3/07:  Modified PURCHASE stored procedure in oracleds2_create_sp.sql to keep rollback rate constant
+          Added extra try/catch statement to dspurchase.jsp
+
+DVDStore 2.1
+6/14/2010 by GSK: Modified ds2oraclefns.cs for single driver program driving multiple machines scenario. Also added template files : 
+			Template files will be used by perl script to generate build and cleanup (*.sql and *.sh) scripts for any size database.
+	Added:
+	/ds2/oracleds2/oracleds2_create_all_generic_template.sh
+	/ds2/oracleds2/build/: 
+		oracleds2_cleanup_generic_fk_disabled_template.sh
+		oracleds2_cleanup_generic_fk_disabled_template.sql
+		oracleds2_cleanup_generic_template.sh
+		oracleds2_cleanup_generic_template.sql
+		oracleds2_create_db_generic_template.sql
+		oracleds2_create_tablespaces_generic_template.sql
+	for script generation
+
+	Added :ds2oraclefns_64b_client.cs file and modified for driving multiple machines.
+	(This new file will be used only for Oracle 11g 64 bit client driver)
+
+	Added:
+		/ds2/oracleds2/web/springsource   (This folder contains springsource implementation for Oracle Web Tier)
+		/ds2/oracleds2/web/springsource/oracleds2_create_trigger_springsource_only.sql   (Trigger is used only for working with web tier. Trigger replenishes the inventory)
+
+	Modified: 
+		 ds2oraclefns.cs.64 for driving workload on multiple machines .
+		 oracleds2_create_db.sql script and template scripts for new partitions for order and orderline tables
+				  	       to partition data according to recent dates between 2009 - 2011
+
+	Modified: 
+		*.ctl files in folder ds2/oracleds2/load/orders to work with new partitions
+
+	Modified: 
+		ds2oraclefns.cs, ds2oraclefns.cs.64, ds2oraclefns_64b_client.cs   (changed for parameterizing a query)
+
+	Driver program is recompiled to provide latest *.exe's
+
+	(To know more about DVDStore 2.1 and how to use driver programs in DVDStore 2.1, please go through documentation ds2.1_Documentation.txt)
+
+5/12/11:  Recompiled ds2oracledriver.exe with new ds2xdriver.cs and Oracle 11g 64b Oracle Data Provider for .NET
+          Renamed 32b code and driver as ds2oracledriver_32b_client.exe and ds2oraclefns_32b_client.cs
+
+5/15/15:  Updated to DVD Store version 3 - Major version change with new
+	additions to the order process - premium membership, product reviews,
+	and product reviews ratings.
+
+	All files have been updated to take into account the changes and
+	renamed from ds2 to ds3 convention.
+
+	Database schema now includes membership, reviews, and
+	reviews_helpfulness tables.
+
+	Indexes were added for these new tables.
+
+	New stored procedures were added for new review, new membership,
+	new review helpfulness ratings, browsing reviews by product, stars,
+	date, title, and actor.
+
+	Driver program was updated to so that membership and reviews are now
+	part of the order process.
+
+	Data Generation programs were created for membership, reviews, and 
+	reviews helpfulness tables.
+
+	

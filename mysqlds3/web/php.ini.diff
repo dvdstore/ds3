@@ -1,0 +1,22 @@
+diff /usr/local/lib/php.ini /usr/local/lib/php.ini-recommended 
+346c346
+< error_reporting  =  E_ERROR
+---
+> error_reporting  =  E_ALL
+353c353
+< display_errors = On
+---
+> display_errors = Off
+764c764
+< mysqli.default_host = rhel32
+---
+> mysqli.default_host =
+767c767
+< mysqli.default_user = web
+---
+> mysqli.default_user =
+774,775c774
+< mysqli.default_password = web
+< mysqli.default_pw = web
+---
+> mysqli.default_password =

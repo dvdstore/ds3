@@ -1,0 +1,6 @@
+to monitor load progress:
+
+mysql --password=password < showinnodb.sql | tr \n '\n' | grep csv
+
+where showinnodb.sql is
+show innodb status

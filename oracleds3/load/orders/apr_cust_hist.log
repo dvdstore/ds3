@@ -1,0 +1,54 @@
+
+SQL*Loader: Release 12.1.0.1.0 - Production on Wed Apr 8 11:15:09 2015
+
+Copyright (c) 1982, 2013, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   cust_hist.ctl
+Data File:      ../../../data_files/orders/apr_cust_hist.csv
+  Bad File:     apr_cust_hist.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Continuation:    none specified
+Path used:      Direct
+
+Load is UNRECOVERABLE; invalidation redo is produced.
+
+Table DS3.CUST_HIST, loaded from every logical record.
+Insert option in effect for this table: APPEND
+TRAILING NULLCOLS option in effect
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+CUSTOMERID                          FIRST     *   ,  O(") CHARACTER            
+ORDERID                              NEXT     *   ,  O(") CHARACTER            
+PROD_ID                              NEXT     *   ,  O(") CHARACTER            
+
+
+Table DS3.CUST_HIST:
+  4999227 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+Bind array size not used in direct path.
+Column array  rows :    5000
+Stream buffer bytes:  256000
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:       4999227
+Total logical records rejected:         0
+Total logical records discarded:        0
+Total stream buffers loaded by SQL*Loader main thread:     1065
+Total stream buffers loaded by SQL*Loader load thread:        0
+
+Run began on Wed Apr 08 11:15:09 2015
+Run ended on Wed Apr 08 11:15:12 2015
+
+Elapsed time was:     00:00:03.28
+CPU time was:         00:00:02.16

@@ -1,0 +1,142 @@
+
+ds2_change_log.txt
+
+5/13/05:  Posted ds2.tar.gz to linux.dell.com
+5/26/05:  Fixed small bug in ds2_create_customers.c and ds2_create_orders.c to handle n_last properly
+7/5/05:   Added SQL Server code and MySQL direct driver; re-architected driver
+          program into database-independent (ds2xdriver.cs) and database-dependent pieces
+          (ds2webfns.cs, ds2sqlserverfns.cs, ds2mysqlfns.cs)
+          Improved driver parameter handling, including optional use of config file
+          Added JSP interface to MySQL 
+9/9/05:   Added Oracle version including ProC driver program
+9/13/05:  Oracle: Added JSP pages under ./ds2/oracleds2/web/jsp
+          Oracle: changed schema to make CUSTOMERS/CREDIT_CARD column allow nulls
+          MySQL: Made type of PRODUCTS table explicit with  TYPE=MyISAM; declaration rather than assume default table type is MyISAM
+          ds2xdriver.cs: Fixed minor bug for think time
+9/14/05:  ds2xdriver.cs: Added check on n_searches, etc., not equal to 0
+          Oracle: made minor fixes to JSP pages
+          MySQL: made minor fixes to JSP pages
+9/21/05:  MySQL: added PHP4 pages
+10/5/05:  Oracle: Added ds2oraclenfns.cs, compiled with new ds2xdriver.cs to gen ds2oracledriver.exe
+          Oracle: Added index to INVENTORY table; added this index to Analyze script
+          ds2mysqlfns.cs: fixed bug - was not closing reader in case of no DVDs found in search
+          ds2xdriver.cs: Added target_hostname parameter for tracking CPU Util % during run (Windows only)
+                         Write output to standard error until final results (for ease of handling output in scripts)
+          Recompiled ds2webdriver.exe, ds2webdriver_mono.exe, ds2mysqldriver.exe, ds2mysqldriver_mono.exe, ds2sqlserverdriver.exe
+            with new ds2xdriver.cs
+10/21/05: Removed errant debugging statement in ds2xdriver.cs, recompiled 6 driver programs
+          Oracle: updated ProC programs (ds_mt_order) for slight modifications to Oracle stored procedures
+11/14/05: ds2xdriver.cs: Changed default think_time to 0 sec for consistency, recompiled 6 driver programs
+          ds2webnfns.cs: Added code to handle quotes in HTML output (per Gerhard Kalab's suggestion)
+          Fixed bug in ds2oraclefns.cs Browse_By_Title code
+12/16/05: Added ds2_schema.txt
+          Oracle JSP files: Changed target hostname (localhost) and servicename (orcl) in JSP connect strings for clarity 
+          MySQL JSP files: Added target hostname (localhost) to JSP connect string for clarity 
+6/30/06:  ds2xdriver.cs updated Performance Counter code for .NET 2.0/Visual Studio 2005
+          ds2oraclefns.cs: Added Connection Timeout=120 to sConnectionString
+          Replaced all driver programs
+          SQL Server build directory: added index on SPECIALS in PRODUCT table; added re-creation of 
+          index on INVENTORY after reload of INVENTORY table
+7/12/06:  sqlserverds2_create_all.sql: added index on SPECIALS column of PRODUCTS table
+          Added SQL Server 2005 sqlmaint.exe path to readme files
+10/24/06: Oracle: Fixed missing semicolon in oracleds2_create_ind.sql
+          Modified oracleds2_cleanup_large.sh to point to oracleds2_cleanup_large_fk_disabled.sql
+          Changed name of indx_2 file to indx_2.dbf in oracleds2_create_tablespaces_large_asm.sql
+          Changed size of SEQUENCE CACHE in large databases from 100,000 to 1M
+          Added oracleds2_create_all_large.sh
+11/30/07: ds2xdriver.cs: Changed "target_hostname" to "windows_perf_host" for clarity; 
+                         modified description in code and in ds2driver_doc.txt
+12/3/07:  Oracle: 
+          Modified PURCHASE stored procedure in oracleds2_create_sp.sql to keep rollback rate constant
+          Added extra try/catch statement to dspurchase.jsp
+          SQL Server:
+          ds2sqlserverfns.cs: added Connection Timeout=120 to sConnectionString; recompiled ds2sqlserverdriver.exe
+          sqlserverds2_create_all_*.sql: 
+            replaced create code with new code from build directory
+            added separate create all scripts for medium and large (with 2 and 4 LUNs) databases
+          build: sqlserverds2_create_db*.sql:
+                   changed dbf filesizes for SQL Server 2005
+                   changed LUN nomenclature (data on G: and H: (and I: and J:if necessary); logs on L:)
+                   added separate build files for LARGE database with 2 or 4 LUNs
+                   added RESTOCK trigger to keep rollback rate constant
+                 sqlserverds2_create_ind*.sql:
+                   Added 4 new indexes and 4 statistics from SQL Server Tuning Advisor
+                   created separate ind files for small, medium and large databases 
+                     (differ in location of Fulltext files)
+                 sqlserverds2_cleanup*.sql:
+                   added delete rows of REORDER table
+                   added recreate RESTOCK trigger
+          load:  added TABLOCK parameter to load files
+          web:   changed aspx files for SQL Server 2005 and Visual Studio 2005;
+                   added detailed instructions for setting up web site
+
+6/14/2010 by GSK: DVDStore v2.1
+			Modifications for Custom database size handling in driver programs and C programs for data generation.
+			New perl scripts written which will automate task of generating CSV files for custom database size and 
+			build script generation and Configuration file creation. (Readme's n respective folders and comments in each code file is updated)
+			Files Added: 
+				 /ds2/Install_DVDStore.pl
+				 /ds2/CreateConfigFile.pl
+				 /ds2/ds2.1_Documentation.txt
+				 /ds2/sqlserverds2/sqlserverds2_create_all_generic_template.sql     (templates scripts are used by perl scripts to generate build and cleanup scripts)
+				 /ds2/sqlserverds2/sqlserverds2_cleanup_generic_template.sql
+				 /ds2/sqlserverds2/sqlserverds2_create_db_generic_template.sql
+				 /ds2/sqlserverds2/sqlserverds2_create_ind_generic_template.sql
+				 /ds2/mysqlds2/mysqlds2_cleanup_generic_template.sql
+				 /ds2/oracleds2/oracleds2_create_all_generic_template.sh
+				 /ds2/oracleds2/oracleds2_cleanup_generic_fk_disabled_template.sh
+				 /ds2/oracleds2/oracleds2_cleanup_generic_fk_disabled_template.sql
+				 /ds2/oracleds2/oracleds2_cleanup_generic_template.sh
+				 /ds2/oracleds2/oracleds2_cleanup_generic_template.sql
+				 /ds2/oracleds2/oracleds2_create_db_generic_template.sql
+				 /ds2/oracleds2/oracleds2_create_tablespaces_generic_template.sql
+				 /ds2/oracleds2/web/springsource/
+				 /ds2/oracleds2/web/springsource/ds2web/		(This folder contains Web Tier designed in SpringSource for driving workload on Oracle Database from Web Server (tcServer / Tomcat)
+				 /ds2/oracleds2/web/springsource/oracleds2_create_trigger_springsource_only.sql
+				 /ds2/oracleds2/ds2oraclefns_64b_client.cs	(Driver code for systems with 64 bit Oracle Client)
+
+			Files Modified:
+				/ds2/data_files/cust/ds2_create_cust.c
+				/ds2/data_files/orders/ds2_create_inv.c
+				/ds2/data_files/orders/ds2_create_orders.c
+				/ds2/data_files/prod/ds2_create_prod.c
+				/ds2/drivers/ds2webfns.cs
+				/ds2/drivers/ds2xdriver.cs
+				/ds2/mysqlds2/ds2mysqlfns.cs
+				/ds2/oracleds2/ds2oraclefns.cs
+				/ds2/oracleds2/ds2oraclefns.cs.64
+				/ds2/sqlserverds2/ds2sqlserverfns.cs
+				/ds2/sqlserverds2/web/dspurchase.aspx.cs			(Modified for Query parameterization)
+				/ds2/sqlserverds2/sqlserverds2_create_all_large2.sql	(Modified for FORCESEEK HINT in Browse_By_actor and Browse_By_title stored procedure)
+				/ds2/sqlserverds2/sqlserverds2_create_all_large4.sql	(Modified for FORCESEEK HINT in Browse_By_actor and Browse_By_title stored procedure)
+				/ds2/sqlserverds2/sqlserverds2_create_all_med.sql	(Modified for FORCESEEK HINT in Browse_By_actor and Browse_By_title stored procedure)
+				/ds2/sqlserverds2/sqlserverds2_create_all_small.sql	(Modified for FORCESEEK HINT in Browse_By_actor and Browse_By_title stored procedure)
+				/ds2/sqlserverds2/build/sqlserverds2_create_sp.sql	(Modified for FORCESEEK HINT in Browse_By_actor and Browse_By_title stored procedure)			
+				/ds2/mysqlds2/web/php5/dslogin.php				(Modified for using new mysqli drivers and close DB conections explicitly in code)
+				/ds2/mysqlds2/web/php5/dsbrowse.php
+				/ds2/mysqlds2/web/php5/dsnewcustomer.php
+				/ds2/mysqlds2/web/php5/dspurchase.php
+				
+			Major Changes:
+
+				Perl scripts can create database CSV files for any size database.
+				Data generation C programs are modified for that.
+				Driver program can work with any size database and can drive workload on multiple machines. (All *.cs files are modified for that)
+				Driver programs for SQL Server and Oracle are optimized to make use of Parameterized queries which execute better with plan cache.
+				SQL Server stored procedures Browse_By_actor and Browse_By_title use FORCESEEK HINT to use index seeks always instead of index scans.(Allows better behaviour of SQL Server under memory pressure by choosing faster index seeks always)
+				ds2xdriver.cs outputs new parameter rt_tot_sampled which is sampled average response time between each 10 second interval.
+				New template scripts(*.sh and *.sql) are added. These templates will be used by perl scripts to generate build and cleanup scripts(*.sh and *.sql) for 
+				any size database.
+				New code for Oracle driver /ds2/oracleds2/ds2oraclefns_64b_client.cs to be used in case when driver system has Oracle 64 bit client installed.
+				Modified PHP5 pages for mySQL web driver.
+				New SpringSource web pages and web tier for Oracle Web Driver.
+				New main documentation /ds2/ds2.1_Documentation.txt introduced for general instruction on how to use DVDStore 2.1 for new users.
+
+		To know more about modifications in DVDStore 2.1 and how to use DVDStore 2.1 please see the main documentation for DVDStore 2.1 under /ds2/ds2.1_Documentation.txt 
+
+11/1/2011 - Addded support for PostgreSQL database.  
+		Added support for Postgresql to InstallDVDStore.pl
+		Added syntax to ds2xdriver.cs for how to compile Postgresql version of driver
+		See new pgsqlds2 tarball for details about new Postgresql support
+
+				 

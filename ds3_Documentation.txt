@@ -1,0 +1,652 @@
+DVD Store 3 Documentation
+
+Dave Jaffe <davejaffe7@gmail.com> and Todd Muirhead <tmuirhead@vmware.com>
+DS2.1 features added by Girish Khadke
+Last Updated 5/15/15
+
+Contents
+1. Introduction to the DVD Store
+2. What's New in 3
+3. Getting Started
+4. Prerequisites
+5. Using Perl scripts for data generation, build script and configuration file generation
+6. Running driver programs using configuration file created
+7. Driver Program with Mulitple Targets
+8. Modifications to Driver Programs
+9. Modifications to Data generation C Programs 
+10. Running SQL Server Maintenence Task on SQL Server 2008 
+11. Using SpringSource Web Tier for Oracle database testing using web driver
+
+1. Introduction
+
+The DVD Store Version 3 (DS3) is a complete open source online e-commerce test
+application, with a backend database component, a web application
+layer, and driver programs.  The goal in designing the database
+component as well as the midtier application was to utilize many
+advanced database features (transactions, stored procedures, triggers,
+referential integity) while keeping the database easy to install and
+understand. The DS3 workload may be used to test databases or as a
+stress tool for any purpose.
+
+The distribution will include code for SQL Server, Oracle, MySQL, and PostGres.
+Included in the release are data generation programs, shell scripts to 
+build data for any size DVD Store database as well as three standard sizes, 
+database build scripts and stored procedure, PHP web pages, and a C# driver program.
+Load data for the small DVD Store database is included in the kit.
+
+The DS3 files are separated into database-independent data load files
+under ./ds3/data_files and driver programs under ./ds3/drivers
+and database-specific build scripts, loader programs, and driver
+programs in directories
+./ds3/mysqlds3
+./ds3/oracleds3
+./ds3/sqlserverds3
+./ds3/pgsqlds3
+
+The DVD Store kit is available at github.com/dvdstore
+
+file ds3.tar.gz contains ./ds3/data_files and ./ds3/drivers
+file ds3_mysql.tar.gz contains ./ds3/mysqlds3
+file ds3_oracle.tar.gz contains ./ds3/oracleds3
+file ds3_sqlserver.tar.gz contains ./ds3/sqlserverds3
+file ds3_pgsql.tar.gz contains ./ds3/pgsqlds3
+
+To install:
+
+In the directory in which you want to install ds3:
+tar -xvzf ds3.tar.gz
+
+and then install the implementation(s) of interest:
+tar -xvzf ds3_mysql.tar.gz
+tar -xvzf ds3_oracle.tar.gz
+tar -xvzf ds3_sqlserver.tar.gz
+
+WinZip may be used to unzip the programs for Windows - ignore the error message
+
+The loader programs use relative addressing to reference the data
+files. They will need to be changed if the data files are placed
+elsewhere.
+
+DS3 has 3 'standard' sizes:
+
+Database    Size     Customers             Orders   Products
+Small      10 MB        20,000        1,000/month     10,000
+Medium      1 GB     2,000,000      100,000/month    100,000
+Large     100 GB   200,000,000   10,000,000/month  1,000,000
+
+Other sizes are easily created using the utilities described below
+
+ds3.tar.gz contains data files for the Small version.
+
+Most of the directories contain readme's with further instructions
+
+
+2. What's New in 3
+
+There are some great new changes and enhancements in the DVDStore 3.  Further details about these changes are in this document:
+
+In an effort to make the DVD Store workload more intensive and reflect the
+types of things that current real world online store sites are doing, major
+changes were made to the DVD Store database and order process for DVD Store 3.
+These changes have made the workload profile of DVD Store 3 different from DVD
+Store 2.x due to the redefinition of the order process to now include product
+reviews and premium membership.  
+
+Product reviews are now part of the DVD Store. Customers of the DVD Store are
+now able to write new reviews and view existing reviews for products.
+Additionally, users have the ability to rate the helpfulness of a reviews on a
+scale from 1 to 10.  There are seven new stored procedures to enable this
+functionality.
+
+Premium membership has also been added to the DVD Store, which enables
+customers to be able to sign up as bronze, silver, or gold level preimum
+member.  
+
+The driver program was updated to simulate users taking advantage of these new
+features which results in a new order process.  The new order process is
+login/new customer, new preimuim membership signup, browse products by title,
+actor, or category, browse product reviews, new product review, new review
+helpfulness rating, and finally purchase.
+
+New data generation programs were written to generate load files for the new
+reviews, reviews_helpfulness, and membership tables.  
+
+The InstallDVDStore.pl perl script was updated so that it makes calls to the
+new data generation programs.
+
+All database build scripts were updated to create the new tables, new stored
+procedures, and new indexes.
+
+
+3. Getting Started Quickly
+
+Simple instructions for building the small DVDStore database using the data 
+included in the kit without use of the Perl scripts are given in each 
+database directory, for example, .\ds3\sqlserverds3\ds3_sqlserver_readme.txt
+
+This section gives an overview of the steps needed to get a DVDStore of any 
+size up and running quickly using the new Perl scripts.
+
+Here is a short list of steps that can get you started quickly. Additional 
+details are given later in this document.
+
+	(a) Install database system (OS + Oracle or SQL Server or MySQL)
+	(b) Download DVDStore3 to database system
+	(c) Ensure that Perl is setup on system
+	(d) Run InstallDVDStore.pl
+	(e) Use scipts created by InstallDVDStore.pl to create and load database
+	(f) On system to be used as driver, run CreateConfigFile.pl
+	(g) Run driver program with the parameter file created by CreateConfigFile.pl
+
+
+4. Prerequisites
+
+In order to run the DVDStore, one of the supported databases (SQL Server, Oracle, 
+MySQL, or PostGres) must already be installed and configured.
+
+	4.1 Prerequisites:
+
+		4.1.1	Running Perl scripts on Windows machine:
+
+		In order to be able to run the DS3 Perl scripts on a Windows machine 
+		that generate data and build scripts for your database, you need to 
+		have Perl installed. The scripts have been tested with Perl from 
+		ActiveState and Cygwin
+
+                ActiveState:
+                (a)     The free Community Edition may be downloaded at 
+			http://www.activestate.com/activeperl/downloads. Select 
+                        ActivePerl for the version of Windows you have and run the 
+			downloaded file to install Perl
+
+                Cygwin:
+
+		(a)	Download setup.exe from http://www.cygwin.com/ for cygwin installation.
+		(b)	Run the installer(setup.exe) to install cygwin.
+		(c)	Installer for cygwin will ask for mirrors from which to choose 
+			to copy setup files from. 
+			(If not successful, retry by selecting another mirror since some 
+			of mirrors may not be active)
+		(d)	After selecting mirror, installer will ask for which packages to install. 
+			(These packages are for emulating some of linux commands including Perl)
+		(e)	Select packages for gcc and Perl and their dependent packages. 
+			(Or you can just select default package and select Perl checkbox also. 
+			 Note: Perl and gcc are not included in default package and must be 
+			selected in addition to the defaults.)
+                         Note2: gcc is required to generate the best quality data on Windows
+		(f)	After the setup is successful, add the cygwin bin folder to the 
+			"Path" environment variable.E.g. If cygwin is installed in folder 
+			c:\cygwin\ then set path variable as c:\cygwin\bin\
+		(g)	Make sure that above steps are successfully completed.
+		(h) 	Now you can open cygwin shell and navigate to ds3 directory 
+			and run the Perl scripts.
+			
+			Alternatively you can also run Perl scripts from DOS Shell 
+			successfully if you have installed cygwin and Perl.
+
+		4.1.2 The Oracle driver program ds3oracledriver.exe is now compiled with 
+		the 64b Oracle 12c Oracle Data Provider for .NET
+		
+
+	
+5. Using Perl scripts for data generation, build script and configuration file generation
+
+	Perl scripts that automate the task of generating CSV data files are included with 
+	DVDStore3. They create database build and cleanup scripts and configuration files 
+	which will be used to run the driver program.
+
+	There are two Perl scripts : InstallDVDStore.pl and CreateConfigFile.pl
+
+	5.1	InstallDVDStore.pl
+
+		This Perl script will ask the following:
+
+		(1) Database Size as an integer (User can enter any integer value. For 
+		example: 20, 40, 50, 100, 150, etc)
+		(2) Database Size in MB/GB   (Defines if the size entered initially was in 
+		mb or gb. Possible values are: mb, gb, MB, GB)
+		(3) Database Type (User has to specify one of the following values: mssql 
+		(for SQL Server), mysql (for MySQL), pgsql (for postgres), or oracle (for Oracle) )
+		(4) System OS Type   (User has to specify one of the following values: 
+		win (for windows) or linux( for linux) )
+		(5) Database file paths (In case of Oracle and SQL Server database, user 
+		has to specify paths where the database files for primary dbfile, tables, 
+		indexes and log will be stored.
+
+		    	For multiple paths a ';' separated list can be provided. For MySQL 
+			database, there is no need to enter this parameter)
+			For example the following provides 4 different paths:
+					 c:\sql\;d:\sql\;e:\sql\;f:\sql\   
+
+		
+		This Perl script generates CSV text files to be used to load as data in the 
+		DVD Store database and are structured based on the DVD Store schema.
+		These files are stored in the cust, orders, reviews, membership, and prod 
+		directories under the data_files directory.  This Perl script also generates 
+		customzied build script files for database type selected under the database 
+		specific directory.
+
+		The database build scripts are created based on the following set of template 
+		files that are included in DVDStore 2.1:
+
+		(1) MySQL
+
+			[1] mysqlds3_cleanup_generic_template.sql - /ds3/mysqlds3/build
+
+		(2) Oracle
+			[1] oracleds3_create_all_generic_template.sh - /ds3/oracleds3
+			[2] oracleds3_cleanup_generic_fk_disabled_template.sh - /ds3/oracleds3/build
+			[3] oracleds3_cleanup_generic_fk_disabled_template.sql - /ds3/oracleds3/build 
+			[4] oracleds3_cleanup_generic_template.sh - /ds3/oracleds3/build 
+			[5] oracleds3_cleanup_generic_template.sql -  /ds3/oracleds3/build
+			[6] oracleds3_create_db_generic_template.sql - /ds3/oracleds3/build
+			[7] oracleds3_create_tablespaces_generic_template.sql -	/ds3/oracleds3/build 
+
+		(3) SQL Server
+			[1] sqlserverds3_create_all_generic_template.sql - /ds3/sqlserverds3
+			[2] sqlserverds3_cleanup_generic_template.sql - /ds3/sqlserverds3/build
+			[3] sqlserverds3_create_db_generic_template.sql - /ds3/sqlserverds3/build
+			[4] sqlserverds3_create_ind_generic_template.sql - /ds3/sqlserverds3/build
+
+	
+		Build script files are generated from template files which have _generic_template 
+		in file name.
+		The build scripts generated from these template files will be have _databasesize 
+		in file name.
+
+		For example: For 20 mb sql server database instance,  a file generated from 
+		template file sqlserverds3_create_all_generic_template.sql will be named: 
+		sqlserverds3_create_all_20mb.sql
+
+		New scripts are generated in the same folder in which their respective template 
+		files reside.
+
+		*Notes : (1) The primary reason that build scripts are created, instead of just 
+		directly running the commands, is that the user	can always edit them later. It 
+		is very easy to modify these files to account for changing circumstances like 
+		changing paths where DBFiles(primary, index or table) or full text index files 
+		will be stored. 
+
+		(2) User can also change the default size of DBFile size and default 
+		size of increments of growth in case of overflow in size.
+
+		(3) In case of SQL Server database case, user can specify 7 different database 
+		file paths for primary dbfile, misc dbfile, customer table, order table dbfile, 
+		index dbfile, log file and full text index file respectively. The Template script
+		sqlserverds3_create_all_generic_template.sql assumes two dbfiles per table. In 
+		case if user wants to change number of dbfiles and file size or paths, user can 
+		always edit newly created script.)	
+		If user specifies only one path, Perl script will assume same paths for all 
+		dbfiles mentioned above and will create database build script with same path 
+		name for all dbfiles.
+			
+		(4) For Oracle, user can specify 4 paths for following tablespaces respectively: 
+		customer, index, misc and order. If user specifies only one path, Perl script 
+		will assume same paths for all dbfiles mentioned above and will create database
+		build script with same path name for all dbfiles.
+
+		(5) All paths should be trailed by following character : \ in case of windows 
+		and / in case of Linux.
+			For Example: For windows paths can be c:\sql\dbfiles\;d:\sql\dbfiles\
+				     For Linux paths can be /sql/dbfiles/
+
+		(6) Multiple paths will always be separated by character ;
+
+
+		After execution of this Perl script, user can run CreateConfigFile.pl Perl script 
+		to generate configuration file used to drive the ds Driver program.
+
+	5.2	CreateConfigFile.pl
+	
+		This Perl script asks for the following:
+			
+		(1) Target host(s) (User can enter single or multiple targets to drive workload on. 
+		In case of multiple targets, ; character will seperate each target) 
+                	(1a) When creating a config file for a web server target, the web server 
+			portnumber can be included in the "target" parameter. The format to use 
+			for this is <hostname/ip>:<portnumber> where the portnumber is optional.
+		(2) Database size (User has to specify the database instance size created on 
+		target host specified. For example: 5gb, 20gb, etc. and all the targets be the 
+		same size. If different sizes are needed, then mulitple driver programs must be run.)
+		(3) Target hostname for perfmon display for windows targets. This is an optional 
+		parameter. 
+		(4) Target linux machine username,password and IP address or machine name (This 
+		parameter uses this format <username>:<password>:<IP Address> 
+		For multiple linux targets, semi colon ; seperated list can also be given)
+		(5) User has to specify value for detailed_view parameter which is used to show 
+		or not to show detailed view of statistics for each target.
+			(User has to specify Y (for yes) and N (for No) as an answer)
+
+		This Perl script will create a configuration file named DriverConfig.txt under 
+		\ds3 folder. Once this file is created, user can edit this file for parameters 
+		like n_threads,run_time, think_time, etc.
+
+6. Running driver programs using configuration file created
+
+	After all above steps and database creation, user can run driver program from command 
+	prompt as follows:
+
+	ds3sqlserverdriver.exe --config_file=c:\ds3\DriverConfig.txt
+
+	Driver program can still be run without specifying a config file. Instead user will have 
+	to provide all command line parameters to driver program as parameter.
+
+7. Driving workload on multiple target machines: 
+
+	In DVD Store v2.0, driver programs were able to only drive workload against a single 
+	machine with a Database Server or Web Server installed. In v2.0, in order to drive 
+	workloads on multiple systems with Database or Web Servers installed, multiple 
+	instances of driver programs had to be opened and run at same time to drive workload 
+	against mulitple machines or targets.
+
+	In DVD Store v2.1, we have modified the Driver programs to be able to distribute 
+	the threads equally against multiple target machines specified either on the command 
+	line or in a configuration file. 
+
+	In addition to showing the total stats across all targets, the statistics for each 
+	individual machine are collected by the driver program and will be displayed on the 
+	console based on the "detailed_view" parameter specified in the configuration file. 
+	If "detailed_view" parameter is set to value "Y", driver program will print individual 
+	as well as aggregate statistics (like opm, response times, CPU%, etc) for each target 
+        machine on every 10 seconds interval as well as after the run completes. 
+
+	If value of parameter "detailed_view" is "N", driver program will print aggregate 
+	or total statistics after every 10 second interval and print total aggregate as well 
+	as individual statistics for each target machine after run completes.
+
+	The prerequisites for driving workload on multiple machines are as follows:
+		(1) Each machine has database instance of same size.
+		(2) Threads will get spread equally on each machine. e.g. If "n_threads" 
+		parameter is set as 2 in configuration file and configuration file has two 
+		target machine names, overall 4 threads will be spawned and will spread 
+		equally among two machines which is 2 threads per machine.
+
+	Driver program can be run as follows:
+
+	ds3webdriver.exe --config_file=c:\ds3\DriverConfig.txt
+
+	Contents of Config file DrivreConfig.txt will look like as follows:
+
+	target=10.115.66.150;10.115.66.134
+	n_threads=4
+	ramp_rate=10
+	run_time=1
+	db_size=5gb
+	warmup_time=1
+	think_time=0.85
+	pct_newcustomers=20
+	n_searches=3
+	search_batch_size=5
+	n_line_items=5
+	virt_dir=ds3
+	page_type=aspx
+	windows_perf_host=10.115.66.150;10.115.66.134
+	detailed_view=Y
+
+	Above statement will case web driver to drive workload against two target windows 
+	machines with 5gb database instances and spawn 2 threads per machine and print 
+	individual as well as aggregate satistics on console.
+
+	For getting linux CPU Utilization data, linux_perf_host parameter must be specified.
+	Sample Configfile to run driver against multiple linux targets will look like 
+	as follows:
+	
+	target=10.115.66.150;10.115.66.134
+	n_threads=4
+	ramp_rate=10
+	run_time=1
+	db_size=5gb
+	warmup_time=1
+	think_time=0.85
+	pct_newcustomers=20
+	n_searches=3
+	search_batch_size=5
+	n_line_items=5
+	virt_dir=ds3
+	page_type=php
+	linux_perf_host=root:qazwsx:10.115.66.150;root:xswzaq:10.115.66.134
+	detailed_view=Y
+
+
+8. Modifications to Driver Programs:
+
+   8.1  Using custom database size:
+
+	In DVD Store v2.0, driver program was able to drive workload on only standard 
+	database sizes S | M | L (10mb | 1gb | 100GB). 	However in current version of 
+	DVD Store, we have modified driver program such that it can drive workload on 
+	custom database sizes. The database size can be specified by a parameter 
+	through configuration file : "db_size". Values of parameter "db_size" can be : 
+	S | M | L ( to maintain backward compatibility with standard size databases) 
+	or any value of database size like 200mb, 20gb, 150gb, etc.
+
+	In case of driving database workloads on multiple target machines, each machine 
+	should have database instance of same size.
+
+   8.2  Parameterization of query for SQL Server driver:
+	
+	In the case of SQL Server it was discovered that a single querey that is 
+	created during the purchase phase of the order was a large percentage of the 
+	plan cache.  This was becuase although the query was essentially the same each 
+	time, SQL Server did not recognize it as the same and was instead creating a new 
+	plan and storing it in the plan cache each time.  By converting the way the 
+	query was created so that it was a parameterized query SQL Server then only 
+	created a plan once and then reused it for every order.  
+	
+	This change is significant because it changes the workload for SQL Server from 
+	the 2.0 version of the DVD Store.  This change was found to increase the OPM by 
+	as much as 20% starting in version 2.1 of DVD Store.  
+
+   8.3  Additional Error Handling
+	
+	The web driver program was also modified in a couple of places to more 
+	gracefully handle unexpected http errors. A max timeout of 60 seconds was added 
+	for initial connection of all threads.  If all threads are not connected in 60 
+	seconds, the driver program will exit.	
+
+
+9.  Modifications to Data generation C programs
+
+	In DVD Store v2.0, data generation C programs generate data for standard size 
+	instances (S | M | L) only. After generating CSV files, they needed to be converted 
+	into proper CR/LF format if they were to be used on a windows system with unix2dos 
+	conversion tool.
+
+	In version 2.1 of DVD Store, we have modified C programs to generate CSV files 
+	for any database size. Also there is no need to convert	generated CSV files which 
+	saves a lot of time for converting huge CSV files into required format.  If you 
+	use the InstallDVDStore.pl script the data generation will be run automatically and it 
+	will not be necessary to run these commands.  The information is provided here as
+	additional detail for those interested.
+
+	Following programs were modified: 
+
+	(1) ds3_create_cust.c
+	
+		New command line argument is introduced for this c program : n_Sys_Type 
+		which denoted system type for which CSV files needs to be generated in 
+		correct format.  A 0 for linux and 1 for Windows. 
+
+		This C program can be run as follows: 
+		./ds3_create_cust      1  10000 US   S 0 > us_cust.csv &
+		./ds3_create_cust  10001  20000 ROW  S 0 > row_cust.csv &
+
+		Above statements will generate customer data file for 10mb instance for 
+		linux machine.
+
+	(2) ds3_create_inv.c
+
+		New command line argument is introduced for this c program : n_Sys_Type 
+		which denoted system type for which CSV files needs to be generated 
+		in correct format. ( 0 for linux and 1 for Windows).
+
+		This C program can be run as follows:
+		./ds3_create_inv 10000 0 > ../prod/inv.csv
+		
+		Above statement will generate inventory data file for 10mb instance 
+		for linux machine
+
+	(3) ds3_create_orders.c
+
+		Following new command line arguments are introduced for this C program:
+
+		n_Sys_Type (0 for linux and 1 for windows)
+		n_Max_Prod_Id (max product Id for custom database size)
+		n_Max_Cust_Id (max customer Id for custom database size)
+
+		This C program can be run as follows:
+		./ds3_create_orders     1  1000 jan S  1 0 10000 20000 &
+		./ds3_create_orders  1001  2000 feb S  2 0 10000 20000 &
+		./ds3_create_orders  2001  3000 mar S  3 0 10000 20000 &
+		./ds3_create_orders  3001  4000 apr S  4 0 10000 20000 &
+		./ds3_create_orders  4001  5000 may S  5 0 10000 20000 &
+		./ds3_create_orders  5001  6000 jun S  6 0 10000 20000 &
+		./ds3_create_orders  6001  7000 jul S  7 0 10000 20000 &
+		./ds3_create_orders  7001  8000 aug S  8 0 10000 20000 &
+		./ds3_create_orders  8001  9000 sep S  9 0 10000 20000 &
+		./ds3_create_orders  9001 10000 oct S 10 0 10000 20000 &
+		./ds3_create_orders 10001 11000 nov S 11 0 10000 20000 &
+		./ds3_create_orders 11001 12000 dec S 12 0 10000 20000 &
+		
+		Above stamtents will generate orders data files for 10mb instance for 
+		linux mahcine.
+
+	(4) ds3_create_prod.c
+
+		Following command line argument is introduced for this c program:
+
+		n_Sys_Type (0 for linux and 1 for windows)
+		
+		This C program can be run as follows: 
+
+		
+		./ds3_create_prod 10000 0 > prod.csv
+
+		Above statement will generate products data file for 10mb instance for 
+		linux machine.
+
+    	NOTE: It is also possible to copy the data files back and forth from Windows 
+	to Linux using the text or ascii filetype in programs such as WINSCP
+
+10. Running SQL Server Maintenence Task on SQL Server 2008 
+	
+	Once the database build and bulk load finishes for SQL Server 2008, in order 
+	to get better performance, it is necesary to update statistics of tables in 
+	databaes DS2. In previous versions of SQL Server(SQL Server 2005 and 2000), 
+	sqlmaint.exec, a command line utility that came with database server 
+	installation, was used.  This utility is now obsolete and is no longer 
+	included with SQL Server 2008. A maintenence task needs to be created to 
+	accomplish the same function in SQL Server 2008.
+
+In SQL Server 2008 Management Studio(GUI), follow following steps:
+	1) Go to Object Explorer and click and expand database server tree.
+	2) Under server tree, expand management and right click on maintenance plans.
+	3) Left Click on "Maintenance Plan Wizard Option".
+	4) In the wizard opened, click next and enter name of plan as "ds3".
+	5) Click next and check "Update Statistics" checkbox and again click next.
+	6) Click next and then choose database as DS2 and click OK.
+	7) Ensure "All existing statistics" and "Sample By" checkbox are set along 
+	with value "18" "percent".
+	8) Once above step is done click next twice to create a task under 
+	"Maintenance Plans" under "Management" object under SQL Server tree.
+	9) Now right click on this task "ds3" created from above steps and it will 
+	show a menu option for right click.
+	10)Click execute to update statistics on all tables in DS2 database using 
+	task created due to above steps.
+
+For previous versions of SQL Server, user can directly invoke sqlmaint.exe utility 
+from command prompt as specified in old documents.
+
+11. Using SpringSource Web Tier for Oracle database testing using web driver
+ 	
+	In DVDStore 2.1, SpringSource MVC Implementation of Web Pages for Oracle 
+	database is provided along with old JSP implementation.	If user wants to use 
+	SpringSource web tier instead of JSP, here are the steps to ensure Web Tier 
+	is setup correctly on Web Server:
+
+	1) To compile SpringSource code, we need JDK to be installed on Web Server 
+	preferably JDK 1.6 or later.
+
+	2) After installing set environment variable JAVA_HOME to path where JDK is 
+	installed.
+		e.g. JAVA_HOME will have value C:\Program Files\Java\jdk1.6.0_20\
+
+	3) Also Install Ant to compile SpringSource code using ant build commands.
+
+	4) After installing ant, set ANT_HOME environment variable to path where ant 
+	is installed.
+		e.g. ANT_HOME will have value C:\apache-ant-1.8.1\
+
+	5) Add similar entries for PATH enviroment variable too.
+		e.g. For java, the entry in PATH environment variable will be  
+		C:\Program Files\Java\jdk1.6.0_20\bin\
+		For ant, the entry in PATH environment variable will be 
+		C:\apache-ant-1.8.1\bin\
+
+	6) Install Apache Tomcat Web Server (Version 5.5 or above)
+
+	7) Set CATALINA_HOME environment variable to path where Tomcat is installed.
+		e.g. CATALINA_HOME will have value 
+		C:\Program Files\Apache Software Foundation\Tomcat 5.5\
+
+	8) Download OpenSource SpringSource Framework 2.5.5 from following link:
+		http://sourceforge.net/projects/springframework-2/2.5.5/
+		(Download Framework with dependencies)
+	
+	9) Unzip the zip file downloaded in above step in a folder on system on which 
+	web server is installed.
+		e.g. Unzip above zip file into folder c:\springsource-framework2.5.5\
+
+	10) Go to /ds3/oracleds3/web/springsource/ and copy ds3web folder into webapps 
+	directory of Tomcat 5.5 installation directory.
+		e.g. Copy ds3web folder in DVDStore 2.1 from 
+		C:\ds3\oracleds3\web\springsource\ to 
+ 		C:\Program Files\Apache Software Foundation\Tomcat 5.5\webapps\ 
+
+	11) Copy following files from SpringSource Framework to ds3web folder in 
+	webapps directory of Tomcat i.e. /ds3web/WEB-INF/lib/.
+
+	FileName		CopyFrom Path					CopyTo Path
+	spring.jar		C:\springsource-framework2.5.5\dist\spring.jar	C:\Program Files\Apache Software Foundation\Tomcat 5.5\webapps\ds3web\WEB-INF\lib\
+	spring-webmvc.jar 	C:\springsource-framework2.5.5\dist\modules\spring-webmvc.jar		C:\Program Files\Apache Software Foundation\Tomcat 5.5\webapps\ds3web\WEB-INF\lib\
+	standard.jar		C:\springsource-framework2.5.5\lib\jakarta-taglibs\standard.jar		C:\Program Files\Apache Software Foundation\Tomcat 5.5\webapps\ds3web\WEB-INF\lib\
+	commons-logging.jar 	C:\springsource-framework2.5.5\lib\jakarta-commons\commons-logging.jar  C:\Program Files\Apache Software Foundation\Tomcat 5.5\webapps\ds3web\WEB-INF\lib\
+	servlet-api.jar		C:\springsource-framework2.5.5\lib\j2ee\servlet-api.jar			C:\Program Files\Apache Software Foundation\Tomcat 5.5\webapps\ds3web\WEB-INF\lib\
+	jstl.jar		C:\springsource-framework2.5.5\lib\j2ee\jstl.jar			C:\Program Files\Apache Software Foundation\Tomcat 5.5\webapps\ds3web\WEB-INF\lib\
+		
+	Also Obtain Oracle J Connector (ojdbc14.jar) 
+	from http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html
+
+	Copy ojdbc14.jar to lib folder under ds3web folder in Apache Tomcat webapps. 
+	i.e. C:\Program Files\Apache Software Foundation\Tomcat 5.5\webapps\ds3web\WEB-INF\lib\
+
+	12) Open command prompt and go to /webapps/ds3web/WEB-INF/ folder under 
+	tomcat installation.
+	
+	13) Type "ant clean" and press enter. (This step will clean up the older 
+	*.class files under ds3web folder)
+	
+	14) Type "ant" and press enter. (This step will build all code under ds3web 
+	folder using build.xml file in /ds3web/WEB-INF/ and will dump *.class files 
+	in their respective folders)
+	
+	15) For Web Driver to work for Oracle Web Tier, it is necessary to create two 
+	triggers on Database Server. The script to create triggers is located at 
+	/ds3/oracleds3/web/springsource/oracleds3_create_trigger_springsource_only.sql
+	Run this script on command prompt as: 
+	sqlplus ds3/ds3 @oracleds3_create_trigger_springsource_only.sql
+	
+	16) One build using ant is complete and all above steps are complete, start 
+	apache tomcat web server and check whether DVDStore Web tier is up and running 
+	using following URL:
+		http://<hostname>:8080/dslogin.html
+	
+	17) Now to run the web driver program and with SpringSource Web pages being 
+	hosted by Tomcat, some the parameter values for driver program should be as 
+	follows:
+		virt_dir=ds3web
+		page_type=html
+
+
+
+

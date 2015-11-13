@@ -719,7 +719,7 @@ namespace ds2xdriver
                 ind_e = str_acc.IndexOf("stars");
                 review_stars_out[i_row] = Convert.ToInt32(str_acc.Substring(0, ind_e));
 
-                str_acc = str_acc.Substring(4 + str_acc.IndexOf("By")); // Find By to located reviewer customerid 
+                str_acc = str_acc.Substring(3 + str_acc.IndexOf("By")); // Find By to located reviewer customerid 
                 ind_e = str_acc.IndexOf("on");
                 review_customerid_out[i_row] = Convert.ToInt32(str_acc.Substring(0, ind_e));
 
@@ -896,7 +896,7 @@ namespace ds2xdriver
                 ind_e = str_acc.IndexOf("stars");
                 review_stars_out[i_row] = Convert.ToInt32(str_acc.Substring(0, ind_e));
 
-                str_acc = str_acc.Substring(4 + str_acc.IndexOf("By")); // Find By to located reviewer customerid 
+                str_acc = str_acc.Substring(3 + str_acc.IndexOf("By")); // Find By to located reviewer customerid 
                 ind_e = str_acc.IndexOf("on");
                 review_customerid_out[i_row] = Convert.ToInt32(str_acc.Substring(0, ind_e));
 

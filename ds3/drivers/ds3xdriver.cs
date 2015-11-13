@@ -79,6 +79,9 @@ namespace ds2xdriver
 
     // Variables needed by User objects 
     public static string target , windows_perf_host = null;
+    public static string outfilename;
+    System.IO.StreamWriter outfile;
+    
     public static string[] target_servers;                   //Added by GSK (for single instance of driver program driving multiple database servers)
     public static string[] windows_perf_host_servers;       //Added by GSK
     public static int n_target_servers = 1;                 //Added by GSK to keep track of number of Servers/DB instances on which threads spawned
@@ -165,7 +168,7 @@ namespace ds2xdriver
     static string[] input_parm_names = new string[] {"config_file", "target", "n_threads", "ramp_rate",
       "run_time", "db_size", "warmup_time", "think_time", "pct_newcustomers", "pct_newmember", "n_searches",
       "search_batch_size", "n_reviews", "pct_newreviews", "pct_newhelpfulness", "n_line_items", "virt_dir", 
-      "page_type", "windows_perf_host", "linux_perf_host", "detailed_view"};
+      "page_type", "windows_perf_host", "linux_perf_host", "detailed_view", "out_filename"};
     static string[] input_parm_desc = new string[] {"config file path", 
       "database/web server hostname or IP address", "number of driver threads", "startup rate (users/sec)",
       "run time (min) - 0 is infinite", "S | M | L or database size (e.g. 30MB, 80GB)", "warmup_time (min)", "think time (sec)", 
@@ -175,9 +178,9 @@ namespace ds2xdriver
       "percent of orders where customer will rate an existing review for its helpfulness", "average number of items per order",
       "virtual directory (for web driver)", "web page type (for web driver)", "target hostname for Perfmon CPU% display (Windows only)",
       "username:password:target hostname/IP Address for Linux CPU% display (Linux Only)",
-      "Detailed statistics View (Y / N)"};
+      "Detailed statistics View (Y / N)", "output results to specified file in csv format"};
     static string[] input_parm_values = new string[] {"none", "localhost", "1", "10", "0", "10MB", "1", "0",
-      "20", "1", "3", "5", "3", "5", "10", "5", "ds3", "php", "","","N"};
+      "20", "1", "3", "5", "3", "5", "10", "5", "ds3", "php", "","","N",""};
 
     int server_id = 0;          //Added by GSK
     
@@ -873,6 +876,25 @@ namespace ds2xdriver
           Console.WriteLine("Error in converting parameter pct_newmember: {0}", e.Message);
           return;
       }
+      try 
+      {
+          outfilename = input_parm_values[Array.IndexOf(input_parm_names, "out_filename")];
+          if (outfilename == "") 
+            { 
+              outfilename = null;
+            }
+          else 
+           {
+          outfile = new System.IO.StreamWriter(outfilename);
+          outfile.WriteLine("et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec, rt_tot_sampled," +
+            " n_rollbacks_overall, (100.0 * n_rollbacks_overall) / n_overall" );
+           }
+      }
+        catch (System.Exception e)
+      {
+          Console.WriteLine("Error in filename given for out_filename: {0}", e.Message);
+          return;
+      }
       
       Console.WriteLine ( "target= {0}  n_threads= {1}  ramp_rate= {2}  run_time= {3}  db_size= {4}" +
         "  warmup_time= {5}  think_time= {6} pct_newcustomers= {7} pct_newmembers= {8}  n_searches= {9}  search_batch_size= {10}" +
@@ -1175,6 +1197,11 @@ namespace ds2xdriver
             rt_tot_sampled,
             n_rollbacks_overall,(100.0 * n_rollbacks_overall) / n_overall                      
             );
+            if (outfilename != null)
+              {
+               outfile.WriteLine("{0,7:F1},{1},{2},{3},{4},{5},{6},{7,5:F1}", et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec,
+              rt_tot_sampled, n_rollbacks_overall, (100.0 * n_rollbacks_overall) / n_overall); 
+              }
 
           total_cpu_utilzn = 0.0;
           total_lin_cpu_utilzn = 0.0;
@@ -1458,7 +1485,9 @@ namespace ds2xdriver
         n_browse_overall, n_reviewbrowse_overall, n_newreview_overall, n_newhelpfulness_overall,  n_purchase_overall, 
         rt_login_avg_msec, rt_newcust_avg_msec, rt_newmember_avg_msec, rt_browse_avg_msec, rt_reviewbrowse_avg_msec, rt_newreview_avg_msec, 
         rt_newhelpfulness_avg_msec, rt_purchase_avg_msec, rt_tot_sampled, n_rollbacks_overall, (100.0 * n_rollbacks_overall) / n_overall);
-            
+
+      if (outfilename != null)
+          outfile.Close();
 
       total_cpu_utilzn = 0.0;
       total_win_cpu_utilzn = 0.0;
@@ -1908,8 +1937,14 @@ namespace ds2xdriver
               return;
               }
 
-            if ( customerid_out == 0 ) Console.WriteLine ( "User name {0} already exists" , username_in );
-            if (customerid_out == -1) Console.WriteLine("New Customer - DB didn't return value for new customerid, retrying... ");
+            if (customerid_out == 0)
+            {
+                Console.WriteLine("User name {0} already exists", username_in);
+            }
+            if (customerid_out == -1)
+            {
+                Console.WriteLine("New Customer - DB didn't return value for new customerid, retrying... ");
+            }
             } while ( customerid_out < 1 ); // end of do/while try newcustomer
 
 //        Console.WriteLine("Thread {0}: New user {1} logged in, customerid = {2}, RT= {3,10:F3}", 
@@ -2311,7 +2346,7 @@ namespace ds2xdriver
 
       if ( r.Next ( 2 ) == 1 ) // Select region (US or ROW)
         { //ROW    
-        zip_in = "";
+        zip_in = (r.Next(100000)).ToString();
         state_in = "";
         country_in = countries[r.Next ( 10 )];
         }

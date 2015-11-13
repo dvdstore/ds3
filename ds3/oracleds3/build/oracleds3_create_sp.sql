@@ -511,17 +511,20 @@ CREATE OR REPLACE  PROCEDURE "DS3"."GET_PROD_REVIEWS_BY_ACTOR"
 
     IF NOT result_cv%ISOPEN THEN
       OPEN result_cv FOR
-         WITH s2 AS (select products.title, products.actor, products.prod_id, products.common_prod_id from 
-            products where contains (ACTOR, actor_in) > 0)
-            select s2.title, s2.actor, reviews.review_id, reviews.prod_id, reviews.review_date, 
-            reviews.stars, reviews.customerid, reviews.review_summary, reviews.review_text from 
-            s2 inner join REVIEWS ON s2.prod_id = reviews.prod_id;
+	WITH T1 AS 
+          (SELECT PRODUCTS.TITLE, PRODUCTS.ACTOR, PRODUCTS.PROD_ID, REVIEWS.REVIEW_DATE, REVIEWS.STARS, REVIEWS.REVIEW_ID,
+           REVIEWS.CUSTOMERID, REVIEWS.REVIEW_SUMMARY, REVIEWS.REVIEW_TEXT 
+           FROM PRODUCTS INNER JOIN REVIEWS on PRODUCTS.PROD_ID = REVIEWS.PROD_ID where CONTAINS (ACTOR, actor_in) > 0 AND ROWNUM<=10 )
+         select T1.title, T1.actor, T1.REVIEW_ID, T1.prod_id, T1.review_date, T1.stars, 
+                T1.customerid, T1.review_summary, T1.review_text, SUM(helpfulness) AS totalhelp from REVIEWS_HELPFULNESS 
+         inner join T1 on REVIEWS_HELPFULNESS.REVIEW_ID = T1.review_id
+	 GROUP BY T1.REVIEW_ID, T1.prod_id, t1.title, t1.actor, t1.review_date, t1.stars, t1.customerid, t1.review_summary, t1.review_text
+	 ORDER BY totalhelp DESC;       
     END IF;
 
     found := 0;
     FOR i IN 1..batch_size LOOP
-      FETCH result_cv INTO title_out(i), actor_out(i),review_id_out(i), prod_id_out(i), review_date_out(i), review_stars_out(i), review_customerid_out(i), review_summary_out(i), review_text_out(i);
-      SELECT SUM(helpfulness) INTO review_helpfulness_sum_out(i) from reviews_helpfulness where REVIEW_ID = review_id_out(i);
+      FETCH result_cv INTO title_out(i), actor_out(i),review_id_out(i), prod_id_out(i), review_date_out(i), review_stars_out(i), review_customerid_out(i), review_summary_out(i), review_text_out(i), review_helpfulness_sum_out(i);
        IF review_helpfulness_sum_out(i) IS NULL THEN
         review_helpfulness_sum_out(i) := 0;
       END IF;
@@ -560,17 +563,20 @@ CREATE OR REPLACE  PROCEDURE "DS3"."GET_PROD_REVIEWS_BY_TITLE"
 
     IF NOT result_cv%ISOPEN THEN
       OPEN result_cv FOR
-        WITH s2 AS (select products.title, products.actor, products.prod_id, products.common_prod_id from 
-            products where contains (TITLE, title_in ) > 0)
-            select s2.title, s2.actor, reviews.review_id, reviews.prod_id, reviews.review_date, 
-            reviews.stars, reviews.customerid, reviews.review_summary, reviews.review_text from 
-            s2 inner join REVIEWS ON s2.prod_id = reviews.prod_id;
+	WITH T1 AS
+          (SELECT PRODUCTS.TITLE, PRODUCTS.ACTOR, PRODUCTS.PROD_ID, REVIEWS.REVIEW_DATE, REVIEWS.STARS, REVIEWS.REVIEW_ID,
+           REVIEWS.CUSTOMERID, REVIEWS.REVIEW_SUMMARY, REVIEWS.REVIEW_TEXT
+           FROM PRODUCTS INNER JOIN REVIEWS on PRODUCTS.PROD_ID = REVIEWS.PROD_ID where CONTAINS (TITLE, title_in) > 0 AND ROWNUM<=10 )
+         select T1.title, T1.actor, T1.REVIEW_ID, T1.prod_id, T1.review_date, T1.stars,
+                T1.customerid, T1.review_summary, T1.review_text, SUM(helpfulness) AS totalhelp from REVIEWS_HELPFULNESS
+         inner join T1 on REVIEWS_HELPFULNESS.REVIEW_ID = T1.review_id
+         GROUP BY T1.REVIEW_ID, T1.prod_id, t1.title, t1.actor, t1.review_date, t1.stars, t1.customerid, t1.review_summary, t1.review_text
+         ORDER BY totalhelp DESC;
     END IF;
 
     found := 0;
     FOR i IN 1..batch_size LOOP
-      FETCH result_cv INTO title_out(i), actor_out(i),review_id_out(i), prod_id_out(i), review_date_out(i), review_stars_out(i), review_customerid_out(i), review_summary_out(i), review_text_out(i);
-      SELECT SUM(helpfulness) INTO review_helpfulness_sum_out(i) from reviews_helpfulness where REVIEW_ID = review_id_out(i);
+      FETCH result_cv INTO title_out(i), actor_out(i),review_id_out(i), prod_id_out(i), review_date_out(i), review_stars_out(i), review_customerid_out(i), review_summary_out(i), review_text_out(i), review_helpfulness_sum_out(i);
       IF review_helpfulness_sum_out(i) IS NULL THEN
         review_helpfulness_sum_out(i) := 0;
       END IF;

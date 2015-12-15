@@ -93,7 +93,7 @@ namespace ds2xdriver
       //    Console.WriteLine("Thread {0}: Connecting to {1} with URL {2}", Thread.CurrentThread.Name, target_server_name,     //changed Controller.target to target_server_name
 //      URL);
       ServicePoint sp = httpWebRequest.ServicePoint;
-      sp.ConnectionLimit = 100;
+      sp.ConnectionLimit = 200;     // Limits max threads or users to 100. Will get timeout errors above 100 threads
 //    Console.WriteLine("Thread {0}: ServicePoint: name= {1}  max conns= {2}  max idle= {3}", 
 //      Thread.CurrentThread.Name, sp.ConnectionName, sp.ConnectionLimit, sp.MaxIdleTime);
       try

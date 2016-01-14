@@ -1,0 +1,12 @@
+-- Instructions for using sqlmaint to create statistics for query optimizer
+-- 18 is % of database to analyze
+
+SQL Server 2000: 
+C:\Program Files\Microsoft SQL Server\MSSQL\Binn\sqlmaint.exe -U sa -P -S localhost -D DS3 -UpdOptiStats 18
+
+SQL Server 2005: 
+C:\Program Files\Microsoft SQL Server\MSSQL.1\MSSQL\Binn\sqlmaint.exe -U sa -P -S localhost -D DS3 -UpdOptiStats 18
+
+SQL Server 2008:
+
+Please see section 6 in ds3_Documentation.txt under /ds3 folder for SQLMAINT utility in SQL Server 2008

@@ -1,0 +1,63 @@
+ds3_sqlserver_change_log.txt
+
+12/5/15: Initial version of ds3 for SQL Server - based on previous ds2.
+		Added support for ds3 schema with new reviews and membership tables, data load
+			scripts for new tables, updated ds3 driver program, updated build scripts
+
+
+ds2_sqlserver_change_log.txt
+
+6/28/05:  Created
+10/5/05:  Recompiled ds2sqlserverdriver.exe with new ds2xdriver.cs
+10/21/05: Replaced ds2sqlserverdriver.exe due to bug fix in ds2xdriver.cs
+6/30/06:  Replaced ds2sqlserverdriver.exe due to update of ds2xdriver.cs
+          sqlserverds2_cleanup_*.sql: added re-creation of index on INVENTORY after reload
+          sqlserverds2_create_ind.sql: added index on SPECIALS column of PRODUCTS table
+7/12/06:  sqlserverds2_create_all.sql: added index on SPECIALS column of PRODUCTS table
+          Added SQL Server 2005 sqlmaint.exe path to readme files
+12/3/07:  ds2sqlserverfns.cs: added Connection Timeout=120 to sConnectionString; recompiled ds2sqlserverdriver.exe
+          sqlserverds2_create_all_*.sql: 
+            replaced create code with new code from build directory
+            added separate create all scripts for medium and large (with 2 and 4 LUNs) databases
+          build: sqlserverds2_create_db*.sql:
+                   changed dbf filesizes for SQL Server 2005
+                   changed LUN nomenclature (data on G: and H: (and I: and J:if necessary); logs on L:)
+                   added separate build files for LARGE database with 2 or 4 LUNs
+                   added RESTOCK trigger to keep rollback rate constant
+                 sqlserverds2_create_ind*.sql:
+                   Added 4 new indexes and 4 statistics from SQL Server Tuning Advisor
+                   created separate ind files for small, medium and large databases 
+                     (differ in location of Fulltext files)
+                 sqlserverds2_cleanup*.sql:
+                   added delete rows of REORDER table
+                   added recreate RESTOCK trigger
+          load:  added TABLOCK parameter to load files
+          web:   changed aspx files for SQL Server 2005 and Visual Studio 2005;
+                   added detailed instructions for setting up web site
+
+DVDStore 2.1
+6/14/2010 by GSK: Changed ds2sqlserverfns.cs for single driver program driving multiple machines scenario and added template files
+
+			Following templates are added to create database scripts according to custom database size by perl script)
+			Added:
+			/sqlserverds2/build:
+				sqlserverds2_cleanup_generic_template.sql
+				sqlserverds2_create_db_generic_template.sql
+				sqlserverds2_create_ind_generic_template.sql
+				sqlserverds2_create_all_generic_template.sql
+			
+			Modified: 
+				/ds2/sqlserverds2/sqlserverds2_create_all_generic_template.sql  (Modified for adding forceseek hint in browse_by_actor and browse_by_title stored procedures)
+				/ds2/sqlserverds2/build/sqlserverds2_create_sp.sql			    (Modified for adding forceseek hint in browse_by_actor and browse_by_title stored procedures)		
+
+				/ds2/sqlserverds2/ds2sqlserverfns.cs  					(changed for parameterizing a query)
+
+			/ds2/sqlserverds2web: 
+				ds2purchase.aspx.cs, ds2browse.aspx.cs 		(changed for parameterization of query)
+
+07/21/2010 by GSK: Added sqlserverds2_create_user to create new user login :ds2user and also edited template sqlserverds2_create_all_generic_template and changed driver ds2sqlserverfns.cs to use 
+			 ds2user while connecting to target database.
+
+			 Driver program is recompiled to provide latest *.exe's
+		(To know more about DVDStore 2.1 , please go throught document ds2.1_Documentation.txt under ./ds2/ folder)
+5/3/11:   Fixed minor bug in ds2sqlserverfns.cs - login would break if > MAX_ROWS in CUST_HIST for that user

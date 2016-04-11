@@ -85,7 +85,7 @@ CREATE DATABASE DS3 ON
     NAME = 'ind4', 
     FILENAME = 'J:\ind4.ndf',
     SIZE = 8GB
-    )
+    ),
 FILEGROUP DS_MEMBER_FG
     (
     NAME = 'member1',

@@ -86,7 +86,7 @@ main(int argc, char* argv[])
 
   srand(n_cust); // Seed rand() with n_cust
 
-  n_cust_members = floor(n_cust * n_pct / 100);
+  n_cust_members = floor((n_cust / 100) * n_pct);
   n_interval_size = floor(n_cust / n_cust_members);
   flt_interval = (float)n_cust / (float)n_cust_members;
 
@@ -98,6 +98,7 @@ main(int argc, char* argv[])
       next_n_interval_size = floor((cur_flt_interval - n_interval_size) + flt_interval);      
 
       r_custid = random2(i, i+next_n_interval_size-1);
+      r_custid = abs(r_custid);
 
       cur_flt_interval = (cur_flt_interval - n_interval_size) + flt_interval; 
       

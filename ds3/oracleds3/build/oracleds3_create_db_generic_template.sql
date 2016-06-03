@@ -74,7 +74,8 @@ CREATE TABLE "DS3"."MEMBERSHIP"
   "MEMBERSHIPTYPE" NUMBER NOT NULL,
   "EXPIREDATE" DATE NOT NULL
   )
-  ; 
+  TABLESPACE "MEMBERTBS";
+  
 
 --Changed by GSK on 06/25/2010   Order and Orderlines table will be partitioned in partitions from Jan2009 to Jan2011.
 --  Order data creation C program ds3_create_orders.c has been changed to generate data from year 2009
@@ -183,7 +184,7 @@ CREATE TABLE "DS3"."REVIEWS"
   "REVIEW_SUMMARY" VARCHAR2(50 byte) NOT NULL,
   "REVIEW_TEXT" VARCHAR2(1000 byte) NOT NULL
   )
-  ;
+  TABLESPACE "REVIEWTBS";
 
 CREATE TABLE "DS3"."REVIEWS_HELPFULNESS"
   (
@@ -192,7 +193,7 @@ CREATE TABLE "DS3"."REVIEWS_HELPFULNESS"
   "CUSTOMERID" NUMBER NOT NULL,
   "HELPFULNESS" NUMBER NOT NULL
   )
-  ;
+  TABLESPACE "REVIEWTBS";
 
 
 CREATE TABLE "DS3"."INVENTORY"

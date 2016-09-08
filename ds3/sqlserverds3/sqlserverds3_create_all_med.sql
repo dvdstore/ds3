@@ -957,7 +957,7 @@ CREATE PROCEDURE BROWSE_BY_CATEGORY
   AS 
   SET ROWCOUNT @batch_size_in
   SELECT * FROM PRODUCTS WHERE CATEGORY=@category_in and SPECIAL=1
-  SET ROWCOUNT 0
+  RETURN @@ROWCOUNT
 GO
 
 -- Browse by category for membertype

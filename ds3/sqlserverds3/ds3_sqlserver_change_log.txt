@@ -4,6 +4,7 @@ ds3_sqlserver_change_log.txt
 		Added support for ds3 schema with new reviews and membership tables, data load
 			scripts for new tables, updated ds3 driver program, updated build scripts
 
+9/8/16: Minor update with BROWSE_BY_CATEGORY Stored procedure to fix return values, and rebuild of ds2sqlserverdriver.exe with current .net version
 
 ds2_sqlserver_change_log.txt
 

@@ -4,3 +4,4 @@
 07/18/15	Webdriver for DVD Store 3 added. Update to oracle driver to
 		fix small bug. InstallDVDStore.pl updated to include support
 		MySQL version.  MySQL support added at this time.
+02/16/17	Updated driver with ds2mode and threads that can retry before failing

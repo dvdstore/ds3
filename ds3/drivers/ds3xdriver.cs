@@ -61,6 +61,7 @@ namespace ds2xdriver
     public const int MAX_CATEGORY = 16;
     public const int MAX_ROWS = 100;
     public const int LAST_N = 100;
+    public const int MAX_FAILURES = 10;
     }
 
   //
@@ -80,6 +81,7 @@ namespace ds2xdriver
     // Variables needed by User objects 
     public static string target , windows_perf_host = null;
     public static string outfilename;
+    public static string ds2_mode_string;
     System.IO.StreamWriter outfile;
     
     public static string[] target_servers;                   //Added by GSK (for single instance of driver program driving multiple database servers)
@@ -90,6 +92,7 @@ namespace ds2xdriver
     public static int n_overall = 0 , n_login_overall = 0 , n_newcust_overall = 0 , n_browse_overall = 0 ,
       n_purchase_overall = 0 , n_rollbacks_overall = 0 , n_rollbacks_from_start = 0 , n_purchase_from_start = 0 , n_cpu_pct_samples = 0;
     public static int n_reviewbrowse_overall = 0, n_newreview_overall = 0, n_newhelpfulness_overall = 0, n_newmember_overall = 0;
+    public static double pct_rollbacks;
 
     //Added by GSK
     public static int[] arr_n_login_overall;
@@ -157,6 +160,8 @@ namespace ds2xdriver
     //Boolean values to check if there are linux and windows target VM's
     public static bool is_Lin_VM = false;
     public static bool is_Win_VM = false;
+    //Boolean value to simulate DS2 version of driver on DS3 database
+    public static bool ds2_mode = false;
 
     // Variables needed within Controller class
     // Added new Parameter db_size by GSK
@@ -168,7 +173,7 @@ namespace ds2xdriver
     static string[] input_parm_names = new string[] {"config_file", "target", "n_threads", "ramp_rate",
       "run_time", "db_size", "warmup_time", "think_time", "pct_newcustomers", "pct_newmember", "n_searches",
       "search_batch_size", "n_reviews", "pct_newreviews", "pct_newhelpfulness", "n_line_items", "virt_dir", 
-      "page_type", "windows_perf_host", "linux_perf_host", "detailed_view", "out_filename"};
+      "page_type", "windows_perf_host", "linux_perf_host", "detailed_view", "out_filename", "ds2_mode"};
     static string[] input_parm_desc = new string[] {"config file path", 
       "database/web server hostname or IP address", "number of driver threads", "startup rate (users/sec)",
       "run time (min) - 0 is infinite", "S | M | L or database size (e.g. 30MB, 80GB)", "warmup_time (min)", "think time (sec)", 
@@ -178,9 +183,9 @@ namespace ds2xdriver
       "percent of orders where customer will rate an existing review for its helpfulness", "average number of items per order",
       "virtual directory (for web driver)", "web page type (for web driver)", "target hostname for Perfmon CPU% display (Windows only)",
       "username:password:target hostname/IP Address for Linux CPU% display (Linux Only)",
-      "Detailed statistics View (Y / N)", "output results to specified file in csv format"};
+      "Detailed statistics View (Y / N)", "output results to specified file in csv format", "run driver in ds2 mode to mimic previous version"};
     static string[] input_parm_values = new string[] {"none", "localhost", "1", "10", "0", "10MB", "1", "0",
-      "20", "1", "3", "5", "3", "5", "10", "5", "ds3", "php", "","","N",""};
+      "20", "1", "3", "5", "3", "5", "10", "5", "ds3", "php", "","","N","","N"};
 
     int server_id = 0;          //Added by GSK
     
@@ -895,14 +900,27 @@ namespace ds2xdriver
           Console.WriteLine("Error in filename given for out_filename: {0}", e.Message);
           return;
       }
+      try
+      {
+          ds2_mode_string = input_parm_values[Array.IndexOf(input_parm_names, "ds2_mode")];
+          if (ds2_mode_string == "Y")
+          {
+              ds2_mode = true;
+          }          
+      }
+      catch (System.Exception e)
+      {
+          Console.WriteLine("Error in parsing ds2_mode parameter: {0}", e.Message);
+          return;
+      }
       
       Console.WriteLine ( "target= {0}  n_threads= {1}  ramp_rate= {2}  run_time= {3}  db_size= {4}" +
         "  warmup_time= {5}  think_time= {6} pct_newcustomers= {7} pct_newmembers= {8}  n_searches= {9}  search_batch_size= {10}" +
         "  n_reviews={11} pct_newreviews={12} pct_newhelpfulness={13} n_line_items{14} virt_dir= {15}" +
-        "  page_type= {16}  windows_perf_host= {17} detailed_view= {18} linux_perf_host= {19}" ,
+        "  page_type= {16}  windows_perf_host= {17} detailed_view= {18} linux_perf_host= {19} output_file= {20} ds2_mode= {21}" ,
         target , n_threads , ramp_rate , run_time , db_size , warmup_time , think_time , pct_newcustomers ,
             pct_newmember, n_searches , search_batch_size , n_reviews, pct_newreviews, pct_newhelpfulness,
-            n_line_items , virt_dir , page_type , windows_perf_host , detailed_view , linux_perf_host );
+            n_line_items , virt_dir , page_type , windows_perf_host , detailed_view , linux_perf_host, outfilename, ds2_mode_string );
 
 #if (USE_WIN32_TIMER)
       Console.WriteLine("\nUsing WIN32 QueryPerformanceCounters for measuring response time\n");
@@ -1177,14 +1195,42 @@ namespace ds2xdriver
           //rt_newcust_avg_msec = (int) Math.Floor(1000*rt_newcust_overall/n_newcust_overall);
           //rt_browse_avg_msec = (int) Math.Floor(1000*rt_browse_overall/n_browse_overall);
           //rt_purchase_avg_msec = (int) Math.Floor(1000*rt_purchase_overall/n_purchase_overall);
-          rt_tot_avg_msec = ( int ) Math.Floor ( 1000 * rt_tot_overall / n_overall );
+          // rt_tot_avg_msec = ( int ) Math.Floor ( 1000 * rt_tot_overall / n_overall );
+
+          // Modified by DJ 11/28/2016 to handle n_overall = 0
+    	  if (n_overall > 0)
+            {
+            rt_tot_avg_msec = ( int ) Math.Floor ( 1000 * rt_tot_overall / n_overall );
+	        }
+          else
+            {
+            rt_tot_avg_msec = 0;
+	        }
+
 
           //Added on 8/8/2010
           diff_n_overall = Math.Abs(n_overall - old_n_overall);
           old_n_overall = n_overall;
           diff_rt_tot_overall = Math.Abs(rt_tot_overall - old_rt_tot_overall);                    
           old_rt_tot_overall = rt_tot_overall;
-          rt_tot_sampled = (int) Math.Floor(1000 * diff_rt_tot_overall / diff_n_overall);
+
+          if (diff_n_overall > 0)
+            {
+            rt_tot_sampled = (int) Math.Floor(1000 * diff_rt_tot_overall / diff_n_overall);
+    	    }
+          else
+            {
+            rt_tot_sampled = 0;
+	        }
+ 
+	      if (n_overall > 0)
+            {
+            pct_rollbacks = (100.0 * n_rollbacks_overall) / n_overall;
+	        }
+          else
+            {
+            pct_rollbacks = 0.0;
+	        }
 
           //Console.Error.Write ( "\n" );      
           //Console.WriteLine("et={0,7:F1} n_overall={1} opm={2} rt_tot_lastn_max_msec={3} rt_tot_avg_msec={4} " +
@@ -1195,12 +1241,12 @@ namespace ds2xdriver
             "rt_tot_sampled={5} " +
             "rollbacks: n={6} %={7,5:F1} ", et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec,
             rt_tot_sampled,
-            n_rollbacks_overall,(100.0 * n_rollbacks_overall) / n_overall                      
+            n_rollbacks_overall,pct_rollbacks                      
             );
             if (outfilename != null)
               {
                outfile.WriteLine("{0,7:F1},{1},{2},{3},{4},{5},{6},{7,5:F1}", et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec,
-              rt_tot_sampled, n_rollbacks_overall, (100.0 * n_rollbacks_overall) / n_overall); 
+              rt_tot_sampled, n_rollbacks_overall, pct_rollbacks); 
               }
 
           total_cpu_utilzn = 0.0;
@@ -1772,7 +1818,7 @@ namespace ds2xdriver
     //
     public void Emulate ( )
       {
-      int i , customerid_out = 0 , neworderid_out = 0 , rows_returned = 0, reviewhelpfulnessid_out = 0, newreviewid_out = 0;
+      int i , customerid_out = 0 , neworderid_out = 0 , rows_returned = 0, reviewhelpfulnessid_out = 0, newreviewid_out = 0, failures;
       bool IsLogin , IsRollback, IsNewMember, IsNewReview, IsNewHelpfulness;
       double rt = 0 , rt_tot , rt_login , rt_newcust , rt_browse , rt_purchase;
       double rt_newmember, rt_reviewbrowse, rt_newreview, rt_newhelpfulness;
@@ -1794,6 +1840,8 @@ namespace ds2xdriver
       string[] review_text_out = new string[GlobalConstants.MAX_ROWS];   // Browse Reviews, Get Reviews
       int[] review_helpfulness_sum_out = new int[GlobalConstants.MAX_ROWS]; // Browse Reviews, Get Reviews
       int get_review_stars_in;                                           // Browse Reviews, Get Reviews
+      int n_reviewbrowse = 0;
+      int n_getreviewbrowse = 0;
                           // New Review
       //string new_review_summary_in = new string[GlobalConstants.MAX_ROWS]; // New Review
       //string new_review_text_in = new string[1000];                        // New Review
@@ -1891,12 +1939,22 @@ namespace ds2xdriver
           password_in = "password";
           rows_returned = 0;
 
-          if ( !ds2interfaces[Userid].ds2login ( username_in , password_in , ref customerid_out , ref rows_returned ,
+          // Modified by DJ 11/20/2016 to allow failures before dropping thread
+          failures = 0;
+          while ( !ds2interfaces[Userid].ds2login ( username_in , password_in , ref customerid_out , ref rows_returned ,
             ref title_out , ref actor_out , ref related_title_out , ref rt ) )
             {
-            Console.WriteLine ( "Thread {0}: Error in Login for User {1}, thread exiting" ,
-              Thread.CurrentThread.Name , username_in );
-            return;
+            if (++failures < GlobalConstants.MAX_FAILURES)
+              {
+              Console.WriteLine ( "Thread {0}: Error in Login for User {1}, failure {2}, retrying" ,
+                Thread.CurrentThread.Name , username_in, failures);
+    	      }
+	        else 
+	          {
+              Console.WriteLine ( "Thread {0}: Error in Login for User {1}, failure {2}, exiting" ,
+                Thread.CurrentThread.Name , username_in, failures);
+              return;
+	          }
             }
 
           if ( customerid_out == 0 )
@@ -1927,15 +1985,25 @@ namespace ds2xdriver
             username_in = "newuser" + i_user;
             password_in = "password";
 
-            if ( !ds2interfaces[Userid].ds2newcustomer ( username_in , password_in , firstname_in , lastname_in ,
+            failures = 0;
+            while ( !ds2interfaces[Userid].ds2newcustomer ( username_in , password_in , firstname_in , lastname_in ,
               address1_in , address2_in , city_in , state_in , zip_in , country_in , email_in , phone_in ,
               creditcardtype_in , creditcard_in , ccexpmon_in , ccexpyr_in , age_in , income_in , gender_in ,
               ref customerid_out , ref rt ) )
               {
-              Console.WriteLine ( "Thread {0}: Error in Newcustomer {1}, thread exiting" ,
-                Thread.CurrentThread.Name , username_in );
-              return;
+              if (++failures < GlobalConstants.MAX_FAILURES)
+                {
+                  Console.WriteLine ( "Thread {0}: Error in New Customer for User {1}, failure {2}, retrying" ,
+                  Thread.CurrentThread.Name , username_in, failures);
+	            }
+	          else 
+	            {
+                  Console.WriteLine ( "Thread {0}: Error in New Customer for User {1}, failure {2}, exiting" ,
+                  Thread.CurrentThread.Name , username_in, failures);
+                  return;
+	            }
               }
+              
 
             if (customerid_out == 0)
             {
@@ -1959,19 +2027,28 @@ namespace ds2xdriver
 
           // Begin New Member Phase 
 
-        if ( user_type <= Controller.pct_newmember / 100.0 ) // If this is true we have a customer that wants to join membership program
+        if ( ( user_type <= Controller.pct_newmember / 100.0 ) && (!Controller.ds2_mode)) // If this is true we have a customer that wants to join membership program
         {
             IsNewMember = true;
             do  // Try newmember until find a userid that doesn't exist
             {
             customerid_in = 1 + r.Next ( Controller.max_customer );
             membershiplevel_in = 1 + r.Next(3);
-            
-            if ( !ds2interfaces[Userid].ds2newmember ( customerid_in , membershiplevel_in , ref customerid_out , ref rt ) )
+
+            failures = 0;
+            while ( !ds2interfaces[Userid].ds2newmember ( customerid_in , membershiplevel_in , ref customerid_out , ref rt ) )
               {
-              Console.WriteLine ( "Thread {0}: Error in Newmember {1}, thread exiting" ,
-                Thread.CurrentThread.Name , username_in );
-              return;
+              if (++failures < GlobalConstants.MAX_FAILURES)
+                {
+                  Console.WriteLine ( "Thread {0}: Error in New Member for User {1}, failure {2}, retrying" ,
+                    Thread.CurrentThread.Name , username_in, failures);
+    	        }
+  	          else 
+  	            {
+                  Console.WriteLine ( "Thread {0}: Error in New Member for User {1}, failure {2}, exiting" ,
+                    Thread.CurrentThread.Name , username_in, failures);
+                  return;
+  	            }
               }
 
             if ( customerid_out == 0 ) Console.WriteLine ( "Customer {0} is already a member" , customerid_in );
@@ -2030,13 +2107,22 @@ namespace ds2xdriver
               break;
             }
 
-          if ( !ds2interfaces[Userid].ds2browse ( browse_type_in , browse_category_in , browse_actor_in ,
+          failures = 0;
+            while ( !ds2interfaces[Userid].ds2browse ( browse_type_in , browse_category_in , browse_actor_in ,
             browse_title_in , batch_size_in , customerid_out , ref rows_returned , ref prod_id_out , ref title_out ,
             ref actor_out , ref price_out , ref special_out , ref common_prod_id_out , ref rt ) )
             {
-            Console.WriteLine ( "Thread {0}: Error in Browse by {1}, thread exiting" , Thread.CurrentThread.Name ,
-              browse_type_in );
-            return;
+            if (++failures < GlobalConstants.MAX_FAILURES)
+              {
+               Console.WriteLine ( "Thread {0}: Error in simple product Browse for User {1}, failure {2}, retrying" ,
+                Thread.CurrentThread.Name , username_in, failures);
+    	      }
+	        else 
+	          {
+               Console.WriteLine ( "Thread {0}: Error in simple product Browse for User {1}, failure {2}, exiting" ,
+                Thread.CurrentThread.Name , username_in, failures);
+               return;
+	          }
             }
 
 //        Console.WriteLine("Thread {0}: Search by {1}={2} returned {3} DVDs ({4} requested), RT= {5,10:F3}", 
@@ -2060,150 +2146,187 @@ namespace ds2xdriver
         // 
         // GET_PROD_REVIEWS_BY_ACTOR - Search by actor name for product reviews
         // GET_PROD_REVIEWS_BY_TITLE - Search by title name for product reviews
-                  
-        string get_review_type_in = "", get_review_category_in = "", get_review_actor_in = "", get_review_title_in = "";
-        int get_review_prod_in;
-        string get_review_criteria = "";
-        // int batch_size_in;
 
-        int n_reviewbrowse = 1 + r.Next(2 * Controller.n_reviews - 1);   // Perform average of n_reviews searches
-        for (int ib = 0; ib < n_reviewbrowse; ib++)
+        if (!Controller.ds2_mode)    // if ds2_mode is set to true, then don't do get reviews or helpfulness
         {
-            batch_size_in = 1 + r.Next(2 * Controller.search_batch_size - 1); // request avg of search_batch_size lines
-            int search_type = r.Next(2); // randomly select search type
-            switch (search_type)
+            string get_review_type_in = "", get_review_category_in = "", get_review_actor_in = "", get_review_title_in = "";
+            int get_review_prod_in;
+            string get_review_criteria = "";
+            // int batch_size_in;
+
+            n_reviewbrowse = 1 + r.Next(2 * Controller.n_reviews - 1);   // Perform average of n_reviews searches
+            for (int ib = 0; ib < n_reviewbrowse; ib++)
             {
-                case 0:  // Get Reviews by Actor 
-                    get_review_type_in = "actor";
-                    get_review_prod_in = 0;
-                    CreateActor();
-                    actornames_in = actor_in.Split(' ');     // Get just one name for searching
-                    get_review_actor_in = actornames_in[1];   
-                    get_review_title_in = "";
-                    get_review_criteria = get_review_actor_in;
-                    break;
-                case 1:  // Get Reviews by Title
-                    get_review_type_in = "title";
-                    get_review_category_in = "";
-                    get_review_actor_in = "";
-                    CreateTitle();
-                    titlenames_in = title_in.Split(' ');       // Get just one word for title search
-                    get_review_title_in = titlenames_in[1];
-                    get_review_criteria = get_review_title_in;
-                    break;
-            }
-
-            if (!ds2interfaces[Userid].ds2browsereview(get_review_type_in, get_review_category_in, get_review_actor_in,
-              get_review_title_in, batch_size_in, customerid_out, ref rows_returned, ref prod_id_out, ref title_out,
-              ref actor_out, ref review_id_out, ref review_date_out, ref review_stars_out, ref review_customerid_out,
-              ref review_summary_out, ref review_text_out, ref review_helpfulness_sum_out, ref rt))
-            {
-                Console.WriteLine("Thread {0}: Error in Browse Reviews by {1}, thread exiting", Thread.CurrentThread.Name,
-                  browse_type_in);
-                return;
-            }          
-            rt_reviewbrowse += rt;
-        }  // End of for ib=0 to n_browse
-
-        rt_tot += rt_reviewbrowse;  
-
-        // End of Browse Reviews Phase
-          
-        // Get Reviews Phase
-
-        // GET_PROD_REVIEWS - Get product reviews for a specific product
-        // GET_PROD_REVIEWS_BY_DATE - Get product reviews for a specific product sorted by date
-        // GET_PROD_REVIEWS_BY_STARS - Get product reviews for a specific product at a specific "stars" level
-
-        get_review_type_in = "";
-        get_review_stars_in = 1 + r.Next(5);    //Randomly select the star level to search for
-        get_review_prod_in = 0;
-        //string get_review_criteria = "";
-        // int batch_size_in;
-
-        int n_getreviewbrowse = 1 + r.Next(2 * Controller.n_reviews - 1);   // Perform average of n_searches searches
-        for (int ib = 0; ib < n_getreviewbrowse; ib++)
-        {
-            batch_size_in = 1 + r.Next(2 * Controller.search_batch_size - 1); // request avg of search_batch_size lines
-            int search_type = r.Next(3); // randomly select search type
-            switch (search_type)
-            {
-                case 0:  // Get Reviews with no order 
-                    get_review_type_in = "noorder";
-                    // assign get_review_prod_in to be a random product id number
-                    get_review_prod_in = Controller.prod_array[r.Next ( Controller.prod_array_size )];
-                    break;
-                case 1:  // Get Reviews by Star ranking 
-                    get_review_type_in = "star";
-                    get_review_prod_in = Controller.prod_array[r.Next ( Controller.prod_array_size )];
-                    break;
-                case 2:  // Get Reviews by date
-                    get_review_type_in = "date";
-                    get_review_prod_in = Controller.prod_array[r.Next(Controller.prod_array_size)];
-                    break;
-            }
-
-            if (!ds2interfaces[Userid].ds2getreview(get_review_type_in, get_review_prod_in, get_review_stars_in, customerid_out, batch_size_in, ref rows_returned, ref prod_id_out,
-               ref review_id_out, ref review_date_out, ref review_stars_out, ref review_customerid_out,
-              ref review_summary_out, ref review_text_out, ref review_helpfulness_sum_out, ref rt))
-            {
-                Console.WriteLine("Thread {0}: Error in Browse Reviews by {1}, thread exiting", Thread.CurrentThread.Name,
-                  browse_type_in);
-                return;
-            }
-            rt_reviewbrowse += rt;
-        }  // End of for ib=0 to n_browse
-
-        rt_tot += rt_reviewbrowse;
-
-        // End of Get Reviews Phase
-
-        // Begin New Review Phase
-        if (user_type <= Controller.pct_newreviews / 100.0) // If this is true we have a customer that wants to submit a new review
-        {
-            IsNewReview = true;
-            review_data_terms = InitReviewDataTerms();
-            new_review_summary_in = CreateReviewData(ref review_data_terms, 3);
-            new_review_text_in = CreateReviewData(ref review_data_terms, 25);
-            new_review_stars_in = 1 + r.Next(5);
-            new_review_prod_id_in = 1 + r.Next(Controller.max_product);
-
-            if (!ds2interfaces[Userid].ds2newreview(new_review_prod_id_in, new_review_stars_in, customerid_out,
-              new_review_summary_in, new_review_text_in, ref newreviewid_out, ref rt))
-            {
-                Console.WriteLine("Thread {0}: Error in Newreview {1}, thread exiting",
-                  Thread.CurrentThread.Name, username_in);
-                return;
-            }
-
-            rt_newreview = rt;
-            rt_tot += rt;
-        }
-           //End New Review Phase
-
-        // Begin New Review Helpfulness Phase 
-
-        if (user_type <= Controller.pct_newhelpfulness / 100.0) // If this is true we have a customer that wants to rate a reviews helpfulness
-        {
-            IsNewHelpfulness = true;
-            reviewid_in = 1 + r.Next(Controller.max_review);
-            reviewhelpfulness_in = 1 + r.Next(10);
-
-            if (!ds2interfaces[Userid].ds2newreviewhelpfulness(reviewid_in, customerid_out, reviewhelpfulness_in, ref reviewhelpfulnessid_out, ref rt))
+                batch_size_in = 1 + r.Next(2 * Controller.search_batch_size - 1); // request avg of search_batch_size lines
+                int search_type = r.Next(2); // randomly select search type
+                switch (search_type)
                 {
-                    Console.WriteLine("Thread {0}: Error in New Review Helpfulness {1}, thread exiting",
-                      Thread.CurrentThread.Name, username_in);
-                    return;
+                    case 0:  // Get Reviews by Actor 
+                        get_review_type_in = "actor";
+                        get_review_prod_in = 0;
+                        CreateActor();
+                        actornames_in = actor_in.Split(' ');     // Get just one name for searching
+                        get_review_actor_in = actornames_in[1];
+                        get_review_title_in = "";
+                        get_review_criteria = get_review_actor_in;
+                        break;
+                    case 1:  // Get Reviews by Title
+                        get_review_type_in = "title";
+                        get_review_category_in = "";
+                        get_review_actor_in = "";
+                        CreateTitle();
+                        titlenames_in = title_in.Split(' ');       // Get just one word for title search
+                        get_review_title_in = titlenames_in[1];
+                        get_review_criteria = get_review_title_in;
+                        break;
                 }
-            
-            rt_newhelpfulness = rt;  // Just count last iteration if had to retry username
-            rt_tot += rt;
+                failures = 0;
+                while (!ds2interfaces[Userid].ds2browsereview(get_review_type_in, get_review_category_in, get_review_actor_in,
+                  get_review_title_in, batch_size_in, customerid_out, ref rows_returned, ref prod_id_out, ref title_out,
+                  ref actor_out, ref review_id_out, ref review_date_out, ref review_stars_out, ref review_customerid_out,
+                  ref review_summary_out, ref review_text_out, ref review_helpfulness_sum_out, ref rt))
+                  {
+                   if (++failures < GlobalConstants.MAX_FAILURES)
+                    {
+                      Console.WriteLine ( "Thread {0}: Error in browse reviews for User {1}, failure {2}, retrying" ,
+                        Thread.CurrentThread.Name , username_in, failures);
+	                }
+	                else 
+	                {
+                      Console.WriteLine ( "Thread {0}: Error in browse reviews for User {1}, failure {2}, exiting" ,
+                        Thread.CurrentThread.Name , username_in, failures);
+                      return;
+                    }          
+                  }
+                rt_reviewbrowse += rt;
+            }  // End of for ib=0 to n_browse
 
-        } //End of IF 
-
-        // End of New Helpfulness Phase
+            rt_tot += rt_reviewbrowse;
 
 
+            // End of Browse Reviews Phase
+
+            // Get Reviews Phase
+
+            // GET_PROD_REVIEWS - Get product reviews for a specific product
+            // GET_PROD_REVIEWS_BY_DATE - Get product reviews for a specific product sorted by date
+            // GET_PROD_REVIEWS_BY_STARS - Get product reviews for a specific product at a specific "stars" level
+
+            get_review_type_in = "";
+            get_review_stars_in = 1 + r.Next(5);    //Randomly select the star level to search for
+            get_review_prod_in = 0;
+            //string get_review_criteria = "";
+            // int batch_size_in;
+
+            n_getreviewbrowse = 1 + r.Next(2 * Controller.n_reviews - 1);   // Perform average of n_searches searches
+            for (int ib = 0; ib < n_getreviewbrowse; ib++)
+            {
+                batch_size_in = 1 + r.Next(2 * Controller.search_batch_size - 1); // request avg of search_batch_size lines
+                int search_type = r.Next(3); // randomly select search type
+                switch (search_type)
+                {
+                    case 0:  // Get Reviews with no order 
+                        get_review_type_in = "noorder";
+                        // assign get_review_prod_in to be a random product id number
+                        get_review_prod_in = Controller.prod_array[r.Next(Controller.prod_array_size)];
+                        break;
+                    case 1:  // Get Reviews by Star ranking 
+                        get_review_type_in = "star";
+                        get_review_prod_in = Controller.prod_array[r.Next(Controller.prod_array_size)];
+                        break;
+                    case 2:  // Get Reviews by date
+                        get_review_type_in = "date";
+                        get_review_prod_in = Controller.prod_array[r.Next(Controller.prod_array_size)];
+                        break;
+                }
+                failures = 0;
+                while (!ds2interfaces[Userid].ds2getreview(get_review_type_in, get_review_prod_in, get_review_stars_in, customerid_out, batch_size_in, ref rows_returned, ref prod_id_out,
+                   ref review_id_out, ref review_date_out, ref review_stars_out, ref review_customerid_out,
+                   ref review_summary_out, ref review_text_out, ref review_helpfulness_sum_out, ref rt))
+                   {
+                   if (++failures < GlobalConstants.MAX_FAILURES)
+                     {
+                       Console.WriteLine ( "Thread {0}: Error in get review for User {1}, failure {2}, retrying" ,
+                         Thread.CurrentThread.Name , username_in, failures);
+	                 }
+	              else 
+	                 {
+                       Console.WriteLine ( "Thread {0}: Error in get review for User {1}, failure {2}, exiting" ,
+                         Thread.CurrentThread.Name , username_in, failures);
+                       return;
+                     }
+                   }
+                rt_reviewbrowse += rt;
+            }  // End of for ib=0 to n_browse
+
+            rt_tot += rt_reviewbrowse;
+
+            // End of Get Reviews Phase
+
+            // Begin New Review Phase
+            if (user_type <= Controller.pct_newreviews / 100.0) // If this is true we have a customer that wants to submit a new review
+            {
+                IsNewReview = true;
+                review_data_terms = InitReviewDataTerms();
+                new_review_summary_in = CreateReviewData(ref review_data_terms, 3);
+                new_review_text_in = CreateReviewData(ref review_data_terms, 25);
+                new_review_stars_in = 1 + r.Next(5);
+                new_review_prod_id_in = 1 + r.Next(Controller.max_product);
+
+                failures = 0;
+                while (!ds2interfaces[Userid].ds2newreview(new_review_prod_id_in, new_review_stars_in, customerid_out,
+                  new_review_summary_in, new_review_text_in, ref newreviewid_out, ref rt))
+                {
+                  if (++failures < GlobalConstants.MAX_FAILURES)
+                    {
+                      Console.WriteLine ( "Thread {0}: Error in new review for User {1}, failure {2}, retrying" ,
+                        Thread.CurrentThread.Name , username_in, failures);
+	                }
+	              else 
+	                {
+                      Console.WriteLine ( "Thread {0}: Error in new review for User {1}, failure {2}, exiting" ,
+                        Thread.CurrentThread.Name , username_in, failures);
+                      return;
+                    }
+                }
+
+                rt_newreview = rt;
+                rt_tot += rt;
+            }
+            //End New Review Phase
+
+            // Begin New Review Helpfulness Phase 
+
+            if (user_type <= Controller.pct_newhelpfulness / 100.0) // If this is true we have a customer that wants to rate a reviews helpfulness
+            {
+                IsNewHelpfulness = true;
+                reviewid_in = 1 + r.Next(Controller.max_review);
+                reviewhelpfulness_in = 1 + r.Next(10);
+
+                failures = 0;
+                while (!ds2interfaces[Userid].ds2newreviewhelpfulness(reviewid_in, customerid_out, reviewhelpfulness_in, ref reviewhelpfulnessid_out, ref rt))
+                {
+                   if (++failures < GlobalConstants.MAX_FAILURES)
+                     {
+                       Console.WriteLine ( "Thread {0}: Error in new review helpfulness for User {1}, failure {2}, retrying" ,
+                         Thread.CurrentThread.Name , username_in, failures);
+	                 }
+	               else 
+	                 {
+                       Console.WriteLine ( "Thread {0}: Error in new review helpfulness for User {1}, failure {2}, exiting" ,
+                         Thread.CurrentThread.Name , username_in, failures);
+                       return;
+	                 }
+                }
+
+                rt_newhelpfulness = rt;  // Just count last iteration if had to retry username
+                rt_tot += rt;
+
+            } //End of IF 
+
+            // End of New Helpfulness Phase
+
+        } // end of if for ds2_mode to exclude reviews and helpfulness opreations
         // Purchase Phase
 
         for ( i = 0 ; i < GlobalConstants.MAX_ROWS ; i++ )
@@ -2231,11 +2354,21 @@ namespace ds2xdriver
           //          Thread.CurrentThread.Name, i, prod_id_in[i], qty_in[i]);
           }
 
-        if ( !ds2interfaces[Userid].ds2purchase ( cart_items , prod_id_in , qty_in , customerid_out , ref neworderid_out ,
+        failures = 0;
+        while ( !ds2interfaces[Userid].ds2purchase ( cart_items , prod_id_in , qty_in , customerid_out , ref neworderid_out ,
           ref IsRollback , ref rt ) )
           {
-          Console.WriteLine ( "Thread {0}: Error in Purchase, thread exiting" , Thread.CurrentThread.Name );
-          return;
+          if (++failures < GlobalConstants.MAX_FAILURES)
+            {
+            Console.WriteLine ( "Thread {0}: Error in Purchase for User {1}, failure {2}, retrying" ,
+              Thread.CurrentThread.Name , username_in, failures);
+    	    }
+	      else 
+	        {
+            Console.WriteLine ( "Thread {0}: Error in Purchase for User {1}, failure {2}, exiting" ,
+              Thread.CurrentThread.Name , username_in, failures);
+            return;
+	        }
           }
 
         //      Console.WriteLine("Thread {0}: Purchase completed successfully, neworderid = {1}, rollback= {2}, " +

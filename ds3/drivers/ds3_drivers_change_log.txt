@@ -31,3 +31,7 @@ ds3_drivers_change_log.txt
 handle new membership, new reviews, new review helpfulness ratings, browsing
 reviews.  Timing counters added to measure new steps in order process. New
 command line parameters added to support options for new steps.			
+
+02/16/17 ds3xdriver.cs:  Added ability for threads to retry when they encounter an error.
+			 Added ds2mode option that skips all ds3 steps of order
+			 Fixed calcuation of stats in first interval when no orders are 			         completed

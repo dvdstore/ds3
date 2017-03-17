@@ -47,7 +47,7 @@ main(int argc, char* argv[])
   int i, j, m, k, i_user, n_prev_orders;
   int customerid, state_index, country_index, zip, region, creditcard_type, i_month, i_year, age, income;
   double phone, creditcard;
-  char   firstname[6], lastname[10], city[10], a[6], b[10], c[10], state[20], country[50], creditcard_exp[25], email[25];
+  char   firstname[7], lastname[11], city[10], a[6], b[10], c[10], state[20], country[50], creditcard_exp[25], email[25];
   char   username[25], password[25], address[25], gender[5];
   char   fn_cust[35];
   FILE   *FP_cust;
@@ -69,7 +69,7 @@ main(int argc, char* argv[])
   //if (argc < 5)
     if (argc < 6)     //Changed By GSK
     {
-    fprintf(stderr, "Syntax: ds2_create_cust n_first n_last region_str S|M|L n_Sys_Type > output_file\n");  //Changed Syntax by GSK
+    fprintf(stderr, "Syntax: ds3_create_cust n_first n_last region_str S|M|L n_Sys_Type \n");  //Changed Syntax by GSK
     fprintf(stderr, "        where n_first, n_last can contain M or m for millions\n");
     fprintf(stderr, "        the M or m can be followed by a +n\n");
     fprintf(stderr, "Creates customer data files for DS2 database\n");
@@ -145,7 +145,7 @@ main(int argc, char* argv[])
       } //End of For 
 
     sprintf(firstname, "%c%c%c%c%c%c", a[0], a[1], a[2], a[3], a[4], a[5]);
-
+   
     for (j=0; j<10; j++)
       {
       b[j] = random2(65, 90);

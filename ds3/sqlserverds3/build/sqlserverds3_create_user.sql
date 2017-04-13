@@ -1,16 +1,16 @@
 --Added by GSK Create Login and then add users and their specific roles for database
 USE [master]
 GO
-IF NOT EXISTS(SELECT name FROM sys.server_principals WHERE name = 'ds2user')
+IF NOT EXISTS(SELECT name FROM sys.server_principals WHERE name = 'ds3user')
 BEGIN
-	CREATE LOGIN [ds2user] WITH PASSWORD=N'',
+	CREATE LOGIN [ds3user] WITH PASSWORD=N'',
 	DEFAULT_DATABASE=[master],
 	DEFAULT_LANGUAGE=[us_english],
 	CHECK_EXPIRATION=OFF,
 	CHECK_POLICY=OFF
 
 
-	EXEC master..sp_addsrvrolemember @loginame = N'ds2user', @rolename = N'sysadmin'
+	EXEC master..sp_addsrvrolemember @loginame = N'ds3user', @rolename = N'sysadmin'
 
 	USE [DS3]
 	CREATE USER [ds3DS3user] FOR LOGIN [ds3user]

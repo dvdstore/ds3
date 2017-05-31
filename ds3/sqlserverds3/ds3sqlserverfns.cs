@@ -91,8 +91,8 @@ namespace ds2xdriver
       {
       // Add Password=xxx to sConnectionString if password is set
       //string sConnectionString = "User ID=sa;Initial Catalog=DS3;Connection Timeout=120;Data Source=" + Controller.target;
-      //Changed by GSK (added new user ds2user and new server to connect everytime)
-      string sConnectionString = "User ID=ds2user;Initial Catalog=DS3;Connection Timeout=120;Data Source=" + target_server;
+      //Changed by GSK (added new user ds3user and new server to connect everytime)
+      string sConnectionString = "User ID=ds3user;Initial Catalog=DS3;Connection Timeout=120;Data Source=" + target_server;
       try
         {
         objConn = new SqlConnection(sConnectionString);

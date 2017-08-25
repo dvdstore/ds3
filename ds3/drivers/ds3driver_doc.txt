@@ -191,3 +191,35 @@ ess=0 n_purchase_overall=84066 rt_login_avg_msec=1rt_newcust_avg_msec=-21474836
 ec=1 rt_newreview_avg_msec=-2147483648 rt_newhelpfulness=-2147483648rt_purchase
 _avg_msec=3 rt_tot_sampled=53 n_rollbacks_overall=1654 rollback_rate =   2.0%
 
+-------------------------------------------------------------------------------
+
+Simple definitions / explanations for the output from the ds3 driver programs:
+
+et= elapsed time  
+n_overall= number of overall completed orders
+opm= orders per minute 
+rt_tot_lastn_max_msec= maximum response time in the last n orders 
+rt_tot_avg_msec= response time average 
+rt_tot_sampled= response time average in the last sample interval
+rollbacks: 
+n= number of database transactions that were rolled back due to insufficient inventory  
+%=  percentage of orders that were rollbacks
+
+Additional Metrics in the Final Summary:
+n_login_overall= number of logins 
+n_newcust_overall= number of new customers
+n_newmember_overall= number of new premium members
+n_browse_overall= number of product browses
+n_reviewbrowse= number of review browses
+n_newreviews= number of new reviews
+n_newhelpfulness= number of new review helpfulness ratings
+n_purchase_overall= number of purchases
+rt_login_avg_msec= average resposne time for logins
+rt_newcust_avg_msec= average response time for new customer signup
+rt_rewmember_avg_msec= average response time for new membership signup
+rt_browse_avg_msec= average resposne time for product browse
+rt_reviewbrowse_avg_msec= average response time for review browse
+rt_newreview_avg_msec= average response time new review entry
+rt_newhelpfulness= average response time for new review helpfulness ratings entry
+rt_purchase_avg_msec= average response time for purchase
+

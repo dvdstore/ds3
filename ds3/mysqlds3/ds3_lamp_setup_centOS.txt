@@ -1,108 +1,125 @@
 DS3_lamp_setup_centOS.txt
 Author - Todd Muirhead
-Last Modified - 7/21/15
+Last Modified - 9/6/17
 
-Install CentOS 6.5 64bit	
-	Language - English
-	Keyboard - US English
-	Basic Storage Devices
-	Yes, Discard any Data
-	Hostname - TestCentOS
-	Time Zone - Pacific  - Amercia / Los Angeles
-	Root PW - regular
-	Create Custom Layout - 16GB swap, everything else in / (this is just a test system)
-	CentOS Install Type - Standard Desktop
-	Reboot
-	Accept License Agreement
-	Reboot
-	Enble Network - Set eth0 to connect automatically
-	ifconfig to check network adress - 10.133.255.206
+Install CentOS 7.3 64bit
+     Language - English
+     Keyboard - US English
+     Basic Storage Devices
+     Yes, Discard any Data
+     Hostname - TestCentOS
+     Time Zone - Pacific  - Amercia / Los Angeles
+     Root PW - regular
+     Create Custom Layout - 16GB swap, everything else in / (this is just a test system)
+     CentOS Install Type - Standard Desktop
+     Reboot
+     Accept License Agreement
+     Reboot
+     Enble Network - Set eth0 to connect automatically
+     ifconfig to check network adress
+Disable firewall
+	systemctl disable firewalld	
+	systemctl stop firewalld
 Install VMtools
-	Copy to desktop
-	Run vmware-install.pl - accept defaults
-	reboot
-Disable Firewall
-	click System -> Administration -> Firewall.  Click Disable button on toolbar, then apply
+     Copy to desktop
+     Run vmware-install.pl - accept defaults
+     reboot
+Install git
+	yum install git
+Clone DS3 from github
+	mkdir ds3
+	git clone https://github.com/dvdstore/ds3.git
 
-Install MySQL
-	Download YUM repository RPM from http://dev.mysql.com/downloads/repo/ 
-		For RHEL 6 - RPM Package - mysql-community-release-el6-5.noarch.rpm
-		save to /install/mysql
-
-	Open command prompt and install the rpm (this rpm will add the mysql repository to the system)
-		yum localinstall mysql-community-release-el6-5.noarch.rpm
-
-	Install MySQL Server with yum
-		yum install mysql-server
-	This installs version 5.6.25-2 at the time of this work
-
-Install latest apache2 and php with mysql support
-	yum install httpd httpd-devel
+Download MySQL Installer RPM to /install/mysql/
+	Downloaded from http://dev.mysql.com/downloads/repo/
+	This RPM will setup the repository for mysql
+	yum localinstall mysql57-community-release-el7-11.noarch.rpm
+Install latest version of MySQL:
+	yum install mysql-server
+	Installs version 5.7.19-1.el7 (as of this writing on 9/5/2017)
+Install apache2 and php with mysql support
+	yum install httpd httpd-devel (Installs httpd-2.4.6-45)
 	yum install php php-mysql
-
 Start MySQL
 	service mysqld start
-
 Add web user and set its password to web
-	useradd web
-	passwd web
-	chmod 755 /home/web
-
-Download DVD Store 3 from github.com/dvdstore
-	ds3u1.tar
-	ds3u1mysql.tar
-
-Untar
-	tar -xvf ds3u1.tar
-	tar -xvf ds2u1mysql.tar
-
-Build 5GB DVD Store 3 from Install DVD Store Perl Script
-	
-	cd /root/ds3
+     useradd web
+     passwd web
+     chmod 755 /home/web
+Install DVD Store
+	cd /root/ds3/
 	perl Install_DVDStore.pl
 	Answer questions - 5, GB, MYSQL, LINUX
-
-mysql
-	>create user 'web'@'localhost' identified by 'web';
-	>grant ALL PRIVILEGES on *.* to 'web'@'localhost' IDENTIFIED BY 'web';
-	>exit;
-
-	cd /root/ds3/mysqlds3
-	sh mysqlds3_create_all.sh
-
-PHP Web Tier Setup
-	Copy the PHP pages to the correct place on the server
+MySQL
+	Open mysql interactive prompt:
+	mysql
 	
-	mkdir /var/www/html/ds3
-	cp /root/home/ds3/mysqlds3/web/php5/* /var/www/html/ds3
+If you get an error that root does not have permission to logon do the following to reset root password:
+	service mysqld stop
+	cd /var/lib/mysql
+	chown mysql.mysql *
+	mysqld --user=root --skip-grant-tables
+In another session:
+	mysql
+	FLUSH PRIVILEGES;
+	ALTER USER 'root'@'localhost' IDENTIFIED BY 'Ca$hc0w1';
+	exit
+	ps -A |grep mysql
+	kill <PID of mysql process>
+	service mysqld start
 
-	service httpd restart
+Create needed mysql users in a mysql session:
+	mysql
+	disable the password vaidation rules so that our short password will be accepted:
+		uninstall plugin validate_password;
+	create user web with a password of web:
+		create user 'web'@'localhost' identified by 'web';
+		grant ALL PRIVILEGES on *.* to 'web'@'localhost' IDENTIFIED BY 'web';
+		exit;
+	If you are going to have a web server on another host or run the mysql direct DB driver from another host
+		then you will need to add a web user for that host:
+		create user 'web'@'clienthost.com' identified by 'web';
+		grant ALL PRIVILEGES on *.* to 'web'@'clienthost.com' IDENTIFIED BY 'web';
 
-Client System
+Create DS3 and load data:
+     cd /root/ds3/mysqlds3
+     sh mysqlds3_create_all.sh
+
+Setup Webtier
+     mkdir /var/www/html/ds3
+     cp /root/home/ds3/mysqlds3/web/php5/* /var/www/html/ds3
+Edit /etc/php.ini file so that the default mysql user is web/web:
+	mysql.default_user = web
+	mysql.default_password = web
+
+	systemctl restart httpd
 	
-Any web browser should now be able to access the web based php version at http://hostname/ds3/index.html
-	username=user1   password=password
+Use web browser to test out web interface at http://<lampstackhostname>/ds3/
 
-To use the driver program you will need a windows based system with .net framework installed.  
-In the initial version of DVD Store 3 .net framework 4.5 and MySQL .Net Connector version 6.9.6 was used.  If you have a different version of either .net or the MySQL .Net Connector it might be necessary to recompile the driver program before it will run.  
+Login to the DS3 application with user1/password.
+
+In the initial version of DVD Store 3 .net framework 4.5 and MySQL .Net Connector version 6.9.6 was used.  If you have a different version of either .net or the
+MySQL .Net Connector it might be necessary to recompile the driver program before it will run.
 
 It is a fairly simple (not too difficult) command line based compile.  In the ds3xdrvier.cs file header the compile instructions are included and also covered here as well in a little more detail.
 
-Download the ds3u1.tar and ds3u1mysql.tar files and extract all contents on the windows client.
+Download the ds3 files from github on to the windows client system with .Net installed.
 
 Download the MySQL .Net Connector from the dev.mysql.com website - http://dev.mysql.com/downloads/connector/net/
 
-Run the .net connector installer - mysql-connector-net-6.9.6.msi -> Next, Typical, Install, Finish. 
-This will install the MySQL.Data.dll that is needed for the driver program to execute. 
-	
+Run the .net connector installer - mysql-connector-net-6.9.6.msi -> Next, Typical, Install, Finish.
+This will install the MySQL.Data.dll that is needed for the driver program to execute.
+
 If your version of the .net connector is different than above, you will need to recompile the driver program as below.
 
 Recompile the driver program to use the new MySQL.Data.dll that comes with the current version of the connector:
 
-C:\ds3\drivers>c:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /out:ds3mysqldriverNew.exe ds3xdriver.cs c:\ds3\mysqlds3\ds3mysqlfns.cs /d:USE_WIN32_TIME
-R /d:GEN_PERF_CTRS /r:"c:\Program Files (x86)\MySQL\MySQL Connector Net 6.9.6\Assemblies\v4.0\MySql.Data.dll"
+C:\ds3\drivers>c:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /out:ds3mysqldriverNew.exe ds3xdriver.cs c:\ds3\mysqlds3\ds3mysqlfns.cs /d:USE_WIN32_TIMER /d:GEN_PERF_CTRS /r:"c:\Program Files (x86)\MySQL\MySQL Connector Net 6.9.6\Assemblies\v4.0\MySql.Data.dll"
 
 To make the command much shorter, you can add the csc.exe into the PATH environment variable, and have the two source .cs files copied into the same directory.
+
+
+
 
 
 

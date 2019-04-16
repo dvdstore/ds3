@@ -1,13 +1,14 @@
 /*
- * DVD Store 2 Create Customer data - ds2_create_cust.c
+ * DVD Store 3 Create Customer data - ds3_create_cust.c
  *
  * Copyright (C) 2005 Dell, Inc. <dave_jaffe@dell.com> and <tmuirhead@vmware.com>
  *
- * Creates customer data files for DVD Store Database V.2
- * Syntax: ds2_create_cust n_first n_last region_str S|M|L n_Sys_Type > output_file
+ * Creates customer data files for DVD Store Database V.3
+ * Syntax: ds3_create_cust n_first n_last region_str S|M|L n_Sys_Type 
  *         (see details below)
  * Run on Linux to use large RAND_MAX (2e31-1)
  * To compile: gcc -o ds3_create_cust ds3_create_cust.c -lm
+ * Last Update  4/16/19 - Increased max size support
  * Last Updated 5/12/05
  * Last Updated 6/11/2010 by GSK
  *
@@ -41,13 +42,16 @@ double random2d(double i, double j);
 
 main(int argc, char* argv[])
   {
-  int n_first, n_last, adder=0, max_prod_id;
+  long long int adder=0, max_prod_id;
+  long long int n_last, n_first;
   char* ind;
   char n_first_str[20], n_last_str[20], region_str[3], lower_region_str[3], size;
-  int i, j, m, k, i_user, n_prev_orders;
-  int customerid, state_index, country_index, zip, region, creditcard_type, i_month, i_year, age, income;
+  long long int j, m, k, i_user, n_prev_orders;
+  long long int i;
+  int state_index, country_index, zip, region, creditcard_type, i_month, i_year, age, income;
+  long long int customerid;
   double phone, creditcard;
-  char   firstname[7], lastname[11], city[10], a[6], b[10], c[10], state[20], country[50], creditcard_exp[25], email[25];
+  char   firstname[6], lastname[10], city[10], a[6], b[10], c[10], state[20], country[50], creditcard_exp[25], email[25];
   char   username[25], password[25], address[25], gender[5];
   char   fn_cust[35];
   FILE   *FP_cust;
@@ -69,7 +73,7 @@ main(int argc, char* argv[])
   //if (argc < 5)
     if (argc < 6)     //Changed By GSK
     {
-    fprintf(stderr, "Syntax: ds3_create_cust n_first n_last region_str S|M|L n_Sys_Type \n");  //Changed Syntax by GSK
+    fprintf(stderr, "Syntax: ds2_create_cust n_first n_last region_str S|M|L n_Sys_Type > output_file\n");  //Changed Syntax by GSK
     fprintf(stderr, "        where n_first, n_last can contain M or m for millions\n");
     fprintf(stderr, "        the M or m can be followed by a +n\n");
     fprintf(stderr, "Creates customer data files for DS2 database\n");
@@ -86,20 +90,21 @@ main(int argc, char* argv[])
   strcpy(n_first_str,  argv[1]);
   if (!(ind = strpbrk(n_first_str, "Mm")))
     { 
-    n_first = atoi(n_first_str);
+    n_first = strtoll(n_first_str,NULL,0);
     }
   else
     {
     if (*(ind+1) == '+') adder = atoi(ind+2);
     *ind = '\0';
-    n_first = 1000000 * atoi(n_first_str) + adder;
+    n_first = 1000000 * strtoll(n_first_str,NULL,0) + adder;
     }
-
+       
   strcpy(n_last_str,  argv[2]);
+
   adder = 0;
   if (!(ind = strpbrk(n_last_str, "Mm")))
     { 
-    n_last = atoi(n_last_str);
+    n_last = strtoll(n_last_str, NULL, 0);
     }
   else
     {
@@ -145,7 +150,7 @@ main(int argc, char* argv[])
       } //End of For 
 
     sprintf(firstname, "%c%c%c%c%c%c", a[0], a[1], a[2], a[3], a[4], a[5]);
-   
+
     for (j=0; j<10; j++)
       {
       b[j] = random2(65, 90);
@@ -178,7 +183,7 @@ main(int argc, char* argv[])
       } //End Else
     
     customerid     =  i;
-    
+
     phone          =  random2d(1000000000, 9999999999);
 
     creditcard_type =  random2(1,5);
@@ -192,8 +197,8 @@ main(int argc, char* argv[])
     
     sprintf(email, "%s@dell.com", lastname);      
     
-    sprintf(username, "user%d", i);
-    
+    sprintf(username, "user%lld", i);
+
     strcpy(password, "password");  
     
     age  = random2(18, 90); // 18 - 90 yrs of age
@@ -205,13 +210,13 @@ main(int argc, char* argv[])
 
     if(i_Sys_Type == 0)   //If System is Linux, Append LF only    //Added by GSK
     {	
-	    fprintf(FP_cust, "%d,%s,%s,%s,,%s,%s,%05d,%s,%1d,%s,%10.0f,%1d,%16.0f,%s,%s,%s,%d,%d,%s%c",
+	    fprintf(FP_cust, "%lld,%s,%s,%s,,%s,%s,%05d,%s,%1d,%s,%10.0f,%1d,%16.0f,%s,%s,%s,%d,%d,%s%c",
 	      customerid, firstname, lastname, address, city, state, zip, country, region, email, phone, creditcard_type, 
 	      creditcard, creditcard_exp, username, password, age, income, gender, 10);
     }	
     else if(i_Sys_Type == 1) //If System is Windows, Append CR+LF   //Added by GSK   
     {
-	    fprintf(FP_cust, "%d,%s,%s,%s,,%s,%s,%05d,%s,%1d,%s,%10.0f,%1d,%16.0f,%s,%s,%s,%d,%d,%s%c%c",
+	    fprintf(FP_cust, "%lld,%s,%s,%s,,%s,%s,%05d,%s,%1d,%s,%10.0f,%1d,%16.0f,%s,%s,%s,%d,%d,%s%c%c",
 	      customerid, firstname, lastname, address, city, state, zip, country, region, email, phone, creditcard_type, 
 	      creditcard, creditcard_exp, username, password, age, income, gender, 13, 10);	
     }

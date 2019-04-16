@@ -5,3 +5,4 @@
 		fix small bug. InstallDVDStore.pl updated to include support
 		MySQL version.  MySQL support added at this time.
 02/16/17	Updated driver with ds2mode and threads that can retry before failing
+04/16/19   Updated InstallDVDStore.pl and customer data creation program to support larger than 1023 GB size

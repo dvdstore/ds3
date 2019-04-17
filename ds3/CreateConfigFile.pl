@@ -52,14 +52,7 @@ chomp($detailed_view = <STDIN>);
 
 print "***********************************\n";
 
-if(lc($^O) eq lc("linux")) #If system on which perl script is executing is Linux
-{
-	$end_line = "\n";
-}
-else
-{
-	$end_line = "\r\n";
-}
+$end_line = "\n";
 
 print "Creating config file: DriverConfig.txt to be used for Driver Program input parameters....\n";
 

@@ -35,3 +35,7 @@ command line parameters added to support options for new steps.
 02/16/17 ds3xdriver.cs:  Added ability for threads to retry when they encounter an error.
 			 Added ds2mode option that skips all ds3 steps of order
 			 Fixed calcuation of stats in first interval when no orders are 			         completed
+ 04/26/19 ds3xdriver.cs:  Added two new options command line options: log_freq and log_timestamp
+			log_freq - allows user to specify the frequency of output down to as often as 1 second		
+			log_timestamp - can specify that a time stamp be added to every line of output in either
+				utc or local time.

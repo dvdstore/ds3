@@ -17,8 +17,10 @@ Parms will be evaluated left to right
 Parameter Name      Description						Default
 Value
 
+Parameter Name      Description                                         Default Value
+
 config_file         config file path                                    none
-target              database/web server hostname or IP address		localhost
+target              database/web server hostname or IP address          localhost
 n_threads           number of driver threads                            1
 ramp_rate           startup rate (users/sec)                            10
 run_time            run time (min) - 0 is infinite                      0
@@ -26,18 +28,22 @@ db_size             S | M | L or database size (e.g. 30MB, 80GB)        10MB
 warmup_time         warmup_time (min)                                   1
 think_time          think time (sec)                                    0
 pct_newcustomers    percent of customers that are new customers         20
-pct_newmember       percent of orders that will have a customer upgrade their membership  1
+pct_newmember       percent of orders with cust membership upgrade      1
 n_searches          average number of searches per order                3
 search_batch_size   average number of items returned in each search     5
 n_reviews           average number of product review searches per order 3
-pct_newreviews      percent of orders where customer will create a new review	5
-pct_newhelpfulness  percent of orders where customer will rate an existing review for its helpfulness	10
+pct_newreviews      percent of orders where customer creates a review   5
+pct_newhelpfulness  pct of orders where review helpfulness is rated     10
 n_line_items        average number of items per order                   5
-virt_dir            virtual directory (for web driver)                  ds2
+virt_dir            virtual directory (for web driver)                  ds3
 page_type           web page type (for web driver)                      php
 windows_perf_host   target hostname for Perfmon CPU% display (Windows only)
 linux_perf_host     username:password:target hostname/IP Address for Linux CPU% display (Linux Only)
 detailed_view       Detailed statistics View (Y / N)                    N
+out_filename        output results to specified file in csv format
+ds2_mode            run driver in ds2 mode to mimic previous version    N
+log_freq            print output frequency in seconds                   10
+log_timestamp       Detailed timestamp format for log (UTC / LOCAL / NONE) NONE
 
 
 Note: target can be of form hostname:port (port 80 assumed if left out)

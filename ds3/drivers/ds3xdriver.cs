@@ -23,7 +23,9 @@
  *
  * Updated 6/14/2010 by GSK(girish.khadke@gmail.com)
  * Updated 5/12/11 by DJ (cleaned up output; minor fixes)
- * Last updated 5/15/15 by TM - updated for DS3 from DS2- support for new order process with reviews and membership.
+ * Updated 5/15/15 by TM - updated for DS3 from DS2- support for new order process with reviews and membership.
+ * Last Updated 4/23/2019 by TM - Integrated updates from Ruban Deventhiran that add ability to update driver output as often as every second
+ *                                and also an option to put date/time stamp on every line of output
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -148,6 +150,10 @@ namespace ds2xdriver
     public static string detailed_view = "N";
     public static bool is_detailed_view = true;
 
+    //Added by Performance Team - Ruban (New parameter to print log timestamps)
+    public static string log_timestamp = "NONE";
+    public static string cur_datetime = "";
+
     //Added by GSK( New parameter to print Linux CPU utilization statistics)
     public static string linux_perf_host = null;
     public static string[] linux_perf_host_servers;
@@ -169,23 +175,26 @@ namespace ds2xdriver
     //db_size_str parameter is removed since it would not be used in code anywhere
     //Instead at same place we need db_size parameter
     //Added new parameter detailed_view by GSK default value = N
+    //Added new parameter log_timestamp by Performance Team - Ruban default value = N
+    //Added new parameter log_freq by Performance Team - Ruban default value = 10
     //Added new parameter linux_perf_host by GSK 
     static string[] input_parm_names = new string[] {"config_file", "target", "n_threads", "ramp_rate",
       "run_time", "db_size", "warmup_time", "think_time", "pct_newcustomers", "pct_newmember", "n_searches",
       "search_batch_size", "n_reviews", "pct_newreviews", "pct_newhelpfulness", "n_line_items", "virt_dir", 
-      "page_type", "windows_perf_host", "linux_perf_host", "detailed_view", "out_filename", "ds2_mode"};
+      "page_type", "windows_perf_host", "linux_perf_host", "detailed_view", "out_filename", "ds2_mode", "log_freq", "log_timestamp"};
     static string[] input_parm_desc = new string[] {"config file path", 
       "database/web server hostname or IP address", "number of driver threads", "startup rate (users/sec)",
       "run time (min) - 0 is infinite", "S | M | L or database size (e.g. 30MB, 80GB)", "warmup_time (min)", "think time (sec)", 
-      "percent of customers that are new customers", "percent of orders that will have a customer upgrade their membership",
+      "percent of customers that are new customers", "percent of orders with cust membership upgrade",
       "average number of searches per order", "average number of items returned in each search", 
-      "average number of product review searches per order", "percent of orders where customer will create a new review",
-      "percent of orders where customer will rate an existing review for its helpfulness", "average number of items per order",
+      "average number of product review searches per order", "percent of orders where customer creates a review",
+      "pct of orders where review helpfulness is rated", "average number of items per order",
       "virtual directory (for web driver)", "web page type (for web driver)", "target hostname for Perfmon CPU% display (Windows only)",
       "username:password:target hostname/IP Address for Linux CPU% display (Linux Only)",
-      "Detailed statistics View (Y / N)", "output results to specified file in csv format", "run driver in ds2 mode to mimic previous version"};
+      "Detailed statistics View (Y / N)", "output results to specified file in csv format", "run driver in ds2 mode to mimic previous version", "print output frequency in seconds", 
+	  "Detailed timestamp format for log (UTC / LOCAL / NONE) "};
     static string[] input_parm_values = new string[] {"none", "localhost", "1", "10", "0", "10MB", "1", "0",
-      "20", "1", "3", "5", "3", "5", "10", "5", "ds3", "php", "","","N","","N"};
+      "20", "1", "3", "5", "3", "5", "10", "5", "ds3", "php", "","","N","","N", "10", "NONE"};
 
     int server_id = 0;          //Added by GSK
     
@@ -244,8 +253,8 @@ namespace ds2xdriver
         Process p = new Process ( );
         //These arguments will ensure than yes = y will automatically be answered
         // -l root -pw password 11.22.33.44 exit
-        //Submit background task to write mpstat output for 10 seconds to a file
-        string p_args = " -l " + user + " -pw " + passwd + " " + machine_name + " cd /; nohup mpstat 1 10 > /cpuutil.txt 2> /cpuutil.err < /dev/null &";
+        //Submit background task to write mpstat output for 1 seconds to a file
+        string p_args = " -l " + user + " -pw " + passwd + " " + machine_name + " cd /; nohup mpstat 1 1 > /cpuutil.txt 2> /cpuutil.err < /dev/null &";
         p.StartInfo.UseShellExecute = false;
         p.StartInfo.RedirectStandardInput = false;
         p.StartInfo.RedirectStandardOutput = true;
@@ -404,7 +413,7 @@ namespace ds2xdriver
 
       int i;
             int z;
-      int i_sec , run_time = 0 , warmup_time = 1;
+      int i_sec , run_time = 0 , warmup_time = 1, log_freq = 1;
       //Changed by GSK
       //int db_size=0;
       //string db_size_str, errmsg=null;
@@ -629,11 +638,19 @@ namespace ds2xdriver
         Console.WriteLine ( "Error in converting parameter run_time: {0}" , e.Message );
         return;
         }
-
+      try
+        {
+        log_freq = Convert.ToInt32(input_parm_values[Array.IndexOf(input_parm_names, "log_freq")]);
+        }
+        catch (System.Exception e)
+        {
+        Console.WriteLine("Error in converting parameter log_freq: {0}", e.Message);
+        return;
+        }
 
       //db_size_str = input_parm_values[Array.IndexOf(input_parm_names, "db_size_str")];
 
-            //Changed by GSK
+      //Changed by GSK
       //This parameter db_size_str will not be used in case of Custom database size since CalculateNumberOfRows() calculates rows in tables 
       //on the fly according to database size passed as parameter            
       //string sizes= "SML";
@@ -642,7 +659,7 @@ namespace ds2xdriver
       //      Console.WriteLine("Error: db_size_str must be one of S, M or L");
       //      return;
       //  }
-
+    
       //Code for new parameter and new function to initialize number of rows 
       //Added by GSK
       db_size = input_parm_values[Array.IndexOf ( input_parm_names , "db_size" )];
@@ -839,6 +856,32 @@ namespace ds2xdriver
         Console.WriteLine ( "Error in converting parameter detailed_view: {0}" , e.Message );
         return;
         }
+      //Added by Performance Team - Ruban
+      try
+        {
+        log_timestamp = input_parm_values[Array.IndexOf(input_parm_names, "log_timestamp")];
+        if (log_timestamp.ToUpper() == "UTC")
+            {
+                log_timestamp = "UTC";
+            }
+            else if (log_timestamp.ToUpper() == "LOCAL")
+            {
+                log_timestamp = "LOCAL";
+            }
+			else if (log_timestamp.ToUpper() == "NONE")
+				{
+                log_timestamp = "NONE";
+                cur_datetime = "";
+            }
+        else
+                throw new System.Exception("Wrong value of parameter log_timestamp specified!!");
+        }
+      catch (System.Exception e)
+        {
+        Console.WriteLine("Error in converting parameter log_timestamp: {0}", e.Message);
+        return;
+        }
+
       try
       {
           pct_newreviews =
@@ -891,8 +934,8 @@ namespace ds2xdriver
           else 
            {
           outfile = new System.IO.StreamWriter(outfilename);
-          outfile.WriteLine("et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec, rt_tot_sampled," +
-            " n_rollbacks_overall, (100.0 * n_rollbacks_overall) / n_overall" );
+          outfile.WriteLine("datetime et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec, rt_tot_sampled," +
+            " n_rollbacks_overall, rollback_pct" );
            }
       }
         catch (System.Exception e)
@@ -917,10 +960,10 @@ namespace ds2xdriver
       Console.WriteLine ( "target= {0}  n_threads= {1}  ramp_rate= {2}  run_time= {3}  db_size= {4}" +
         "  warmup_time= {5}  think_time= {6} pct_newcustomers= {7} pct_newmembers= {8}  n_searches= {9}  search_batch_size= {10}" +
         "  n_reviews={11} pct_newreviews={12} pct_newhelpfulness={13} n_line_items{14} virt_dir= {15}" +
-        "  page_type= {16}  windows_perf_host= {17} detailed_view= {18} linux_perf_host= {19} output_file= {20} ds2_mode= {21}" ,
+        "  page_type= {16}  windows_perf_host= {17} detailed_view= {18} linux_perf_host= {19} output_file= {20} ds2_mode= {21} log_freq= {22} log_timestamp= {23}" ,
         target , n_threads , ramp_rate , run_time , db_size , warmup_time , think_time , pct_newcustomers ,
             pct_newmember, n_searches , search_batch_size , n_reviews, pct_newreviews, pct_newhelpfulness,
-            n_line_items , virt_dir , page_type , windows_perf_host , detailed_view , linux_perf_host, outfilename, ds2_mode_string );
+            n_line_items , virt_dir , page_type , windows_perf_host , detailed_view , linux_perf_host, outfilename, ds2_mode_string, log_freq, log_timestamp);
 
 #if (USE_WIN32_TIMER)
       Console.WriteLine("\nUsing WIN32 QueryPerformanceCounters for measuring response time\n");
@@ -1122,7 +1165,7 @@ namespace ds2xdriver
       for ( i_sec = 1 ; i_sec <= run_time * 60 ; i_sec++ ) // run for run_time*60 seconds
         {          
         //Call plink to execute mpstat on remote linux machine to store CPU data in File on remote system
-        if (i_sec % 10 == 1)  //At start of every 10 second interval, start background process for mpstat CPU monitoring on each linux machine
+        if (i_sec % log_freq == 1)  //At start as per log_freq interval, start background process for mpstat CPU monitoring on each linux machine
           {
           if (linux_perf_host != null)     //Added by GSK for getting Linux CPU Utilization
             {
@@ -1189,7 +1232,7 @@ namespace ds2xdriver
 #endif               
                 
 
-        if ( i_sec % 10 == 0 ) // print out stats every 10 seconds
+        if ( i_sec % log_freq == 0 ) // print out stats as per log_freq seconds
           {
           //rt_login_avg_msec = (int) Math.Floor(1000*rt_login_overall/n_login_overall);
           //rt_newcust_avg_msec = (int) Math.Floor(1000*rt_newcust_overall/n_newcust_overall);
@@ -1232,23 +1275,34 @@ namespace ds2xdriver
             pct_rollbacks = 0.0;
 	        }
 
+		  switch (log_timestamp)  // Switch to determine the type of time stamps to put on each log line 
+                {
+                    case "UTC":   // Call UtcNow.ToString to get UTC based time
+                        cur_datetime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fff'Z' ");
+                        break;
+                    case "LOCAL":  // Call Now.ToString to get time zone based time 
+                        cur_datetime = DateTime.Now.ToString("MM/dd/yyyy h:mm:ss tt ");
+                        break;
+                    case "NONE":  // Set string to nothing so that no date time is printed
+                        cur_datetime = "";
+                        break;
+                }
+		  
           //Console.Error.Write ( "\n" );      
           //Console.WriteLine("et={0,7:F1} n_overall={1} opm={2} rt_tot_lastn_max_msec={3} rt_tot_avg_msec={4} " +
           //  "rollbacks: n={5} %={6,5:F1}  ", et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec, n_rollbacks_overall,
           //  (100.0 * n_rollbacks_overall) / n_overall);
           //Changed on 8/8/2010
-          Console.WriteLine("et={0,7:F1} n_overall={1} opm={2} rt_tot_lastn_max_msec={3} rt_tot_avg_msec={4} " +
-            "rt_tot_sampled={5} " +
-            "rollbacks: n={6} %={7,5:F1} ", et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec,
-            rt_tot_sampled,
-            n_rollbacks_overall,pct_rollbacks                      
-            );
-            if (outfilename != null)
-              {
-               outfile.WriteLine("{0,7:F1},{1},{2},{3},{4},{5},{6},{7,5:F1}", et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec,
-              rt_tot_sampled, n_rollbacks_overall, pct_rollbacks); 
-              }
-
+          //Changed on 1/16/2019 - By Performance Team - Ruban
+          Console.WriteLine("{8}et={0,7:F1} n_overall={1} opm={2} rt_tot_lastn_max_msec={3} rt_tot_avg_msec={4} " +
+          "rt_tot_sampled={5} " +
+          "rollbacks: n={6} %={7,5:F1} ", et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec,
+          rt_tot_sampled,n_rollbacks_overall, pct_rollbacks, cur_datetime);
+          if (outfilename != null)
+          {
+              outfile.WriteLine("{8} {0,7:F1},{1},{2},{3},{4},{5},{6},{7,5:F1}", et, n_overall, opm, rt_tot_lastn_max_msec, rt_tot_avg_msec,
+              rt_tot_sampled, n_rollbacks_overall, pct_rollbacks, cur_datetime);
+          }
           total_cpu_utilzn = 0.0;
           total_lin_cpu_utilzn = 0.0;
           total_win_cpu_utilzn = 0.0;

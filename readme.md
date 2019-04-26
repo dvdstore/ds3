@@ -18,9 +18,4 @@ driver program that simultes user activity.
 Full details are included in the various readme files in the
 DS3 subdirectories.
 
-DVD Store 3 will support Oracle, MySQL, SQL Server, and
-PostGres databases when complete.  
-
-As of this update in July 2015, Oracle and MySQL support is
-complete.
-
+DVD Store 3 supports Oracle, MySQL, and SQL Server.

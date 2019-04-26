@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 #Perl script created by GSK 
-#Last updated: 3/12/2015
+#Last updated: 1/4/16
 
 #Purpose of perl script: 
 #			This perl script will achieve following things: 
@@ -160,25 +160,25 @@ if($bln_is_DB_ORACLE == 1 || $bln_is_DB_MSSQL == 1)
 	}
 	elsif($bln_is_DB_MSSQL == 1)
 	{
-		#Seven paths for storing following files are needed: ds.mdf, ds_misc.ndf, cust1.ndf, cust2.ndf, orders1.ndf, orders2.ndf, ind1.ndf, ind2.ndf, ds_log.ldf, FULLTEXTCAT_DSPROD(catalog file for full text search)  respectively
+		#Nine paths for storing following files are needed: ds.mdf, ds_misc.ndf, cust1.ndf, cust2.ndf, orders1.ndf, orders2.ndf, ind1.ndf, ind2.ndf, member1.ndf, member2.ndf, review1.ndf, review2.ndfds_log.ldf, FULLTEXTCAT_DSPROD(catalog file for full text search)  respectively
 		#Two dbfiles per table are assumed and path for second dbfile of same table is assumed same as that of first dbfile 
 		#Just paths where datafiles will be stored are needed
-		#Paths for SQL Server on windows should be like this : c:\oracledbfiles\
+		#Paths for SQL Server on windows should be like this : c:\sqldbfiles\
  
 		
-		print "\nFor SQL Server database scripts, total 7 paths needed to specify where ds.mdf,ds_misc,cust,order,index,log and full text catalog dbfiles are stored. \n";
+		print "\nFor SQL Server database scripts, total 9 paths needed to specify where ds.mdf,ds_misc,cust,order,index,member,review,log and full text catalog dbfiles are stored. \n";
 		print "\nIf only one path is specified, it will be assumed same for all dbfiles. \n";
 		print "\nFor specifying multiple paths use ; character as seperator to specify multiple paths \n";
 				
-		print "\nPlease enter path(s) (; seperated if more than one path) where Database Files will be stored (ensure that path exists) : ";
+		print "\nPlease enter path(s) (; seperated if more than one path) where Database Files will be stored. For example c:\\sql\\dbfiles\ (ensure that path exists) : ";
 		chomp($db_file_path = <STDIN>); 
 		@arr1_db_file_paths = split(";",$db_file_path);   #Split tokenized string and store paths in array
 		
-		#If number of paths specified are between 2 and 7 or greater than 7 , its an error
-		if((scalar(@arr1_db_file_paths) != 1 && scalar(@arr1_db_file_paths) < 7) || (scalar(@arr1_db_file_paths) > 7))
+		#If number of paths specified are between 2 and 9 or greater than 9 , its an error
+		if((scalar(@arr1_db_file_paths) != 1 && scalar(@arr1_db_file_paths) < 9) || (scalar(@arr1_db_file_paths) > 9))
 		{
 			print "\nWrong number of paths entered!!!! \n";
-			print "\nSeven paths for storing following files are needed: ds.mdf, ds_misc.ndf, cust1.ndf, orders1.ndf, ind1.ndf, ds_log.ldf, FULLTEXTCAT_DSPROD(catalog file for full text search)  respectively \n";
+			print "\nNine paths for storing following files are needed: ds.mdf, ds_misc.ndf, cust1.ndf, orders1.ndf, ind1.ndf,member1.ndf, review1.ndf ds_log.ldf, FULLTEXTCAT_DSPROD(catalog file for full text search)  respectively \n";
 			exit(0);
 		}
 		#If single path is specified by user then paths for all dbfiles are assumed same
@@ -186,17 +186,20 @@ if($bln_is_DB_ORACLE == 1 || $bln_is_DB_MSSQL == 1)
 		{
 			$arr_db_file_paths[0] =	$arr_db_file_paths[1] = $arr_db_file_paths[2] = $arr_db_file_paths[3] = @arr1_db_file_paths[0];
 			$arr_db_file_paths[4] =	$arr_db_file_paths[5] = $arr_db_file_paths[6] = $arr_db_file_paths[7] = @arr1_db_file_paths[0];		
-			$arr_db_file_paths[8] =	$arr_db_file_paths[9] = @arr1_db_file_paths[0];
+			$arr_db_file_paths[8] =	$arr_db_file_paths[9] = $arr_db_file_paths[10] = $arr_db_file_paths[11] = @arr1_db_file_paths[0];
+			$arr_db_file_paths[12] =	$arr_db_file_paths[13] = @arr1_db_file_paths[0];
 		}
-		else #If 7 paths spacified then 
+		else #If 9 paths spacified then 
 		{
 			$arr_db_file_paths[0] = @arr1_db_file_paths[0];   							#path for ds.mdf
 			$arr_db_file_paths[1] = @arr1_db_file_paths[1];   							#path for ds_misc.ndf
 			$arr_db_file_paths[2] = $arr_db_file_paths[3] = @arr1_db_file_paths[2];		#path for cust1.ndf and cust2.ndf
 			$arr_db_file_paths[4] = $arr_db_file_paths[5] = @arr1_db_file_paths[3];		#path for orders1.ndf and orders2.ndf
 			$arr_db_file_paths[6] = $arr_db_file_paths[7] = @arr1_db_file_paths[4];		#path for ind1.ndf and ind2.ndf
-			$arr_db_file_paths[8] = @arr1_db_file_paths[5];								#path for ds_log.ldf
-			$arr_db_file_paths[9] = @arr1_db_file_paths[6];								#path for full text catalog file
+                $arr_db_file_paths[8] = $arr_db_file_paths[9] = @arr1_db_file_paths[5];		#path for member1.ndf and member2.ndf
+                $arr_db_file_paths[10] = $arr_db_file_paths[11] = @arr1_db_file_paths[6];		#path for review1.ndf and review2.ndf
+			$arr_db_file_paths[12] = @arr1_db_file_paths[7];								#path for ds_log.ldf
+			$arr_db_file_paths[13] = @arr1_db_file_paths[8];								#path for full text catalog file
 		}				
 	}	
 }
@@ -257,18 +260,18 @@ if(lc($^O) ne lc("linux"))  #If System on which perl script executes is windows
 # /ds3/data_files/orders/
 # /ds3/data_files/prod/
 # /ds3/drivers/
-# /ds3/mysqlds2/
-# /ds3/mysqlds2/build/
-# /ds3/mysqlds2/load/
-# /ds3/mysqlds2/web/
-# /ds3/oracleds2/
-# /ds3/oracleds2/build/
-# /ds3/oracleds2/load/
-# /ds3/oracleds2/web/
-# /ds3/sqlserverds2/
-# /ds3/sqlserverds2/build/
-# /ds3/sqlserverds2/load/
-# /ds3/sqlserverds2/web/
+# /ds3/mysqlds3/
+# /ds3/mysqlds3/build/
+# /ds3/mysqlds3/load/
+# /ds3/mysqlds3/web/
+# /ds3/oracleds3/
+# /ds3/oracleds3/build/
+# /ds3/oracleds3/load/
+# /ds3/oracleds3/web/
+# /ds3/sqlserverds3/
+# /ds3/sqlserverds3/build/
+# /ds3/sqlserverds3/load/
+# /ds3/sqlserverds3/web/
 
 #On Windows ds3 folder will be at <Driveletter>: and rest of folder structure will be same
 
@@ -600,6 +603,8 @@ chdir "./reviews/";
 
 print "\nCreating reviews and reviews helpfulness CSV files!!!! \n";
 
+my $par_review_rows = $par_n_Prod * $par_Avg_Reviews; 
+
 if(lc($^O) eq lc("linux"))   #If system on which perl script is executing is Linux
 {
         system("./ds3_create_reviews $par_n_Prod $par_Avg_Reviews $i_Cust_Rows $par_Sys_Type");
@@ -885,7 +890,7 @@ elsif($bln_is_DB_MSSQL == 1) 		#For SQL Server
 {
 	print "\nStarted creating and writing build scripts for SQL Server database...\n";
 	
-	chdir "../../sqlserverds3/";		#Move to sqlserver directory
+	chdir "../../sqlserverds3/";		#Move to mssql directory
 	
 	#Create new create_all sql script file from template
 	@lines = ();
@@ -932,7 +937,8 @@ elsif($bln_is_DB_MSSQL == 1) 		#For SQL Server
 	{
 		$line =~ s/{CUST_ROW}/$i_Cust_Rows/g;
 		$line =~ s/{ORD_ROW}/$ord_row/g;
-		$line =~ s/{DRIVELETTER}/$str_driveletter/g;					   		   	
+		$line =~ s/{DRIVELETTER}/$str_driveletter/g;
+		$line =~ s/{REVIEW_ROW}/$par_review_rows/g;		   		   	
 	}	
 	$str_file_name = "sqlserverds3_cleanup_".$database_size.$database_size_str.".sql";
 	open (NEWFILE, ">", $str_file_name) || die "Creating new file to write failed : $!";
@@ -993,4 +999,4 @@ print "\nAll database build scripts(shell and sql) are dumped into their respect
 print "\nThese scripts are created from template files in same folders with '_generic_template' in their name. \n";
 print "\nScripts that are created from template files have '_' $database_size $database_size_str in their name. \n";
 print "\nUser can edit the sql script generated for customizing sql script for more DBFiles per table and change the paths of DBFiles.\n";
-print "\nNow Run CreateConfigFile.pl perl script in ds2 folder which will generate configuration file used as input to the driver program.\n"
+print "\nNow Run CreateConfigFile.pl perl script in ds3 folder which will generate configuration file used as input to the driver program.\n"

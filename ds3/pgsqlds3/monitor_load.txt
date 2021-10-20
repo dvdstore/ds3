@@ -1,0 +1,6 @@
+to monitor load progress:
+
+psql -d dbname  -f  showstatus.sql | tr \n '\n' | grep csv
+
+where showinnodb.sql is
+select * from pg_stat_activity; 

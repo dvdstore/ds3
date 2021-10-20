@@ -1,0 +1,6 @@
+From the dotnet environment with all of the needed dependencies installed you can run the driver from the source:
+dotnet run
+
+If you want to build a single file executable of the driver for winodws this is the command that you use:
+
+C:\ds35\pgsqlds3\dotnet>dotnet publish -r win-x64 -c Release -o publish -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained true -p:IncludeNativeLibrariesForSelfExtract=true

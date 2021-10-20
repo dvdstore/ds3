@@ -1,0 +1,84 @@
+Author: Luis Alvarez Sanchez
+Date: 10/20/21 
+
+Guide for downloading/setting up postgresql on CentOS:
+
+1) Installation
+	- sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+		- installs rpm repo
+
+	- sudo dnf -qy module disable postgresql
+		- disables built-in postgresql module
+
+	- sudo dnf install -y postgresqlX-server
+		- X=version you want. ex: postgresql13-server
+		- installs postgresql
+		- all commands after this point will assume you're installing version 13
+
+2) Setup
+	- /usr/pgsql-13/bin/postgresql-13-setup initdb
+		- initializes postgres
+
+	- systemctl start postgresql-13
+	- systemctl enable postgresql-13
+		- starts postgres service and enables it to start after system reboot 
+
+2.5) Confirming installation/setup
+	- systemctl status postgresql-13
+		- You should see that it's active, example output:
+			● postgresql-13.service - PostgreSQL 13 database server
+ 			  Loaded: loaded (/usr/lib/systemd/system/postgresql-13.service; enabled; vendor preset: >
+  			   Active: active (running) (thawing) since Tue 2021-09-28 17:43:41 EDT; 19h ago
+
+	- netstat -antup | grep 5432
+		- It's working if you get output
+
+3) Setup psql password
+	- sudo su - postgres
+	- psql
+	- \password
+		- will prompt you to enter password
+	- \q
+	- switch back to admin user
+
+4) Configuring postgres for remote access
+	- sudo vim /var/lib/pgsql/13/data/postgresql.conf
+		- opens pgsql configuration file
+	- Find, uncomment if needed, and change these variables to the following values:
+		- listen_addresses = '*'
+			- listens to any address now
+		- max_connections = 1000
+			- increases max connections to 1000
+	- Save and close
+
+
+	- sudo vim /var/lib/pgsql/13/data/pg_hba.conf
+		- accesses hostbased authentication file for postgres
+	
+	- add to top of TYPE DATABASE	 USER	ADDRESS		METHOD section:
+		- 	host	all	all	0.0.0.0/0	md5
+	- change method of host	all	all 127.0.0.1/0	scram-sha-256 to md5
+		- should be: host all  all 127.0.0.1/0 md5
+	- save and close	
+
+
+	- This lets postgres listen to all IP's for all users as long as they have a password
+
+
+5) Restarting postgres and verification
+	- restart
+		- systemctl restart postgresql-13
+	
+	- verifying remote access (use a different computer/vm)
+		- psql -h SERVER-IP -p 5432 -U postgres -W
+		- enter password set in step 3 
+		
+		- if you're able to access psql then it was set up correctly.
+		- if you get "No route to host" error then move on to step 6
+
+
+6) Change firewall settings (optional)
+	- Do this if you get "No route to host" error when connecting remotely
+	- systemctl stop firewalld
+		- stops firewall, unsafe in non-test environments
+	- repeat step 5

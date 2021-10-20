@@ -1,0 +1,7 @@
+listen_addresses = '*'	
+shared_buffers = 128MB		
+synchronous_commit = off
+full_page_writes = off			
+checkpoint_segments = 16	
+wal_buffers = 1MB
+

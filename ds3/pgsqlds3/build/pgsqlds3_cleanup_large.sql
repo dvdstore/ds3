@@ -2,21 +2,29 @@
 --pgsqlds2_cleanup_large.sql: cleans up new users and orders; restart pgsql after running to reset Identity columns
 
 
-
 alter table CUSTOMERS DISABLE TRIGGER ALL;
 alter table ORDERS DISABLE TRIGGER ALL;
 alter table ORDERLINES DISABLE TRIGGER ALL;
 alter table CUST_HIST DISABLE TRIGGER ALL;
+alter table REVIEWS DISABLE TRIGGER ALL;
+alter table REVIEWS_HELPFULNES DISABLE TRIGGER ALL;
+alter table MEMBERSHIP DISABLE TRIGGER ALL;
 
-delete from CUSTOMERS where CUSTOMERID > 2000000;
-delete from ORDERS where ORDERID > 1200000;
-delete from ORDERLINES where ORDERID > 1200000;
-delete from CUST_HIST where ORDERID > 1200000;
+delete from CUSTOMERS where CUSTOMERID > 200000000;
+delete from ORDERS where ORDERID > 120000000;
+delete from ORDERLINES where ORDERID > 120000000;
+delete from CUST_HIST where ORDERID > 120000000;
+delete from REVIEWS where REVIEW_ID > 2000000000;
+delete from REVIEWS_HELPFULNES where REVIEW_HELPFULNES_ID > 2000000000;
+delete from MEMBERSHIP where CUSTOMERID > 200000000;
 
 alter table CUST_HIST ENABLE TRIGGER ALL;
 alter table ORDERLINES ENABLE TRIGGER ALL;
 alter table ORDERS ENABLE TRIGGER ALL;
 alter table CUSTOMERS ENABLE TRIGGER ALL;
+alter table REVIEWS ENABLE TRIGGER ALL;
+alter table REVIEWS_HELPFULNES ENABLE TRIGGER ALL;
+alter table MEMBERSHIP ENABLE TRIGGER ALL;
 
 
 drop table INVENTORY;
@@ -34,7 +42,7 @@ alter table INVENTORY DISABLE TRIGGER ALL;
 COPY INVENTORY FROM  '/tmp/data_files/prod/inv.csv'
   WITH DELIMITER ',' 
 -- OPTIONALLY ENCLOSED BY '''
- ;
+  ;
 
 alter table INVENTORY ENABLE TRIGGER ALL;
 

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 #Perl script created by GSK 
-#Last updated: 1/4/16
+#Last updated: 10/25/21
 
 #Purpose of perl script: 
 #			This perl script will achieve following things: 
@@ -664,7 +664,7 @@ if($bln_is_DB_MYSQL == 1)			#For MySQL
 }
 elsif($bln_is_DB_PGSQL == 1)			#For PGSQL
 {
-	chdir "../../pgsqlds2/";			#Move to postgres directory
+	chdir "../../pgsqlds3/";			#Move to postgres directory
 	chdir "./build/";					#Move to build directory inside postgres directory
 	
 	#Open a template file and replace placeholders in it and write new file
@@ -676,15 +676,21 @@ elsif($bln_is_DB_PGSQL == 1)			#For PGSQL
 	@lines = ();
 	$line = "";
 	$str_file_name = "";
-	open (FILE, "pgsqlds2_cleanup_generic_template.sql") || die "Can not Open file : $!";	
+	open (FILE, "pgsqlds3_cleanup_generic_template.sql") || die "Can not Open file : $!";	
 	@lines =  <FILE>;
 	close (FILE);
 	foreach $line (@lines)
 	{
+		$line =~ s/{REVIEW_ROW}/$par_review_rows/g;
+
+		my $par_member_rows = $i_Cust_Rows / 10;
+		$line =~ s/{MEMBER_ROW}/$par_member_rows/g;
+		$line =~ s/{REVIEW_HELP_ROW}/$par_review_rows *21/g;
+
 		$line =~ s/{CUST_ROW}/$i_Cust_Rows/g;
 		$line =~ s/{ORD_ROW}/$ord_row/g;
 	}	
-	$str_file_name = "pgsqlds2_cleanup_".$database_size.$database_size_str.".sql";
+	$str_file_name = "pgsqlds3_cleanup_".$database_size.$database_size_str.".sql";
 	open (NEWFILE, ">" , $str_file_name) || die "Creating new file to write failed : $!";
 	print NEWFILE @lines;
 	close (NEWFILE);

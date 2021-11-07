@@ -14,7 +14,7 @@ delete from CUSTOMERS where CUSTOMERID > {CUST_ROW};
 delete from ORDERS where ORDERID > {ORD_ROW};
 delete from ORDERLINES where ORDERID > {ORD_ROW};
 delete from CUST_HIST where ORDERID > {ORD_ROW};
-delete from REIVEWS where REVIEW_ID > {REVIEW_ROW};
+delete from REVIEWS where REVIEW_ID > {REVIEW_ROW};
 delete from REVIEWS_HELPFULNESS where REVIEW_HELPFULNESS_ID > {REVIEW_HELP_ROW};
 delete from MEMBERSHIP where CUSTOMERID > {MEMBER_ROW};
 
